@@ -1,1 +1,1 @@
-Girls for Girls Project Backend API
+Girls for Girls 
