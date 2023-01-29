@@ -1,5 +1,5 @@
 #gitignore file
-.env
+g4g/.env
 .idea
 .pyc
 *.py[cod]
@@ -85,3 +85,6 @@ ipython_config.py
 
 # pyenv
 .python-version
+
+venv/
+.venv/
