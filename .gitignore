@@ -1,5 +1,5 @@
 #gitignore file
-g4g/.env
+.env
 .idea
 .pyc
 *.py[cod]
