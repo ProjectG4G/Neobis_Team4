@@ -6,3 +6,8 @@ PyJWT==2.6.0
 python-decouple==3.7
 pytz==2022.7.1
 sqlparse==0.4.3
+
+django-email-users~=1.1.0
+pip~=22.0.4
+setuptools~=58.1.0
+PyJWT~=2.6.0
