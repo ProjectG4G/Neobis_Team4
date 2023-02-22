@@ -30,11 +30,11 @@ class LoginView(generics.GenericAPIView):
         if not user.check_password(password):
             raise AuthenticationFailed("Incorrect password!")
         refresh = RefreshToken.for_user(user)
+
         return Response(
             {
-                "status": "success",
-                "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "refresh": str(refresh),
             }
         )
 
