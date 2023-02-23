@@ -1,11 +1,19 @@
+from django.http import HttpResponse
+from django.views.generic import View
+from django.core.signing import loads, BadSignature, SignatureExpired
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
+from django.urls import reverse
+
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, RequestEmailVerifactionSerializer
 from rest_framework import generics
 
 
@@ -38,3 +46,28 @@ class LoginView(generics.GenericAPIView):
             }
         )
 
+
+class RequestEmailVerificationView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RequestEmailVerifactionSerializer
+    permission_classes = (AllowAny,)
+
+
+class EmailVerificationView(View):
+    def get(self, request, **kwargs):
+        token = kwargs.get('token')
+
+        try:
+            user_id = loads(token, max_age=settings.EMAIL_VERIFICATION_TIMEOUT)
+        except SignatureExpired:
+            return HttpResponse('Verification link has expired.')
+        except BadSignature:
+            return HttpResponse('Verification link is invalid.')
+        else:
+            user = get_user_model().objects.get(id=user_id)
+
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+
+            return redirect(reverse('token_obtain_pair'))
