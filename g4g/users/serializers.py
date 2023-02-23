@@ -60,3 +60,22 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'password', ]
+
+
+class RequestEmailVerifactionSerializer(serializers.Serializer):
+    email = serializers.EmailField(
+        required=True,
+        allow_blank=False,
+    )
+
+    def create(self, validated_data):
+        email = validated_data['email']
+
+        if not email:
+            raise serializers.ValidationError({'Email': 'Email field must be specified.'})
+
+        user = User.objects.get(email=email)
+
+        user.send_email_verification()
+
+        return user
