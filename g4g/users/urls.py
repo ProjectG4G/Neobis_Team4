@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView,
 )
 
-from .views import RegisterView, LoginView, RequestEmailVerificationView, EmailVerificationView
+from .views import RegisterView, LoginView, EmailVerificationConfirmView, EmailVerificationView
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -14,6 +14,6 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
     path('register/', RegisterView.as_view(), name='auth_register'),
-    path('request-verification/', RequestEmailVerificationView.as_view(), name='request_verification'),
-    path('verification/<str:token>/', EmailVerificationView.as_view(), name='verification')
+    path('verification/', EmailVerificationView.as_view(), name='verification'),
+    path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='email-verification')
 ]

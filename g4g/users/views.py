@@ -1,20 +1,20 @@
-from django.http import HttpResponse
-from django.views.generic import View
-from django.core.signing import loads, BadSignature, SignatureExpired
+from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
+from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
+from rest_framework import generics, status
+
+from rest_framework.permissions import AllowAny, IsAuthenticated
+
 from rest_framework.response import Response
+
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from rest_framework.permissions import AllowAny, IsAuthenticated
-
-from .serializers import RegisterSerializer, LoginSerializer, RequestEmailVerifactionSerializer
-from rest_framework import generics
+from .serializers import RegisterSerializer, LoginSerializer, EmailVerifactionSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -47,27 +47,47 @@ class LoginView(generics.GenericAPIView):
         )
 
 
-class RequestEmailVerificationView(generics.CreateAPIView):
+class EmailVerificationView(generics.GenericAPIView):
+    serializer_class = EmailVerifactionSerializer
     queryset = User.objects.all()
-    serializer_class = RequestEmailVerifactionSerializer
-    permission_classes = (AllowAny,)
 
+    # permission_classes = (IsAuthenticated,)
 
-class EmailVerificationView(View):
-    def get(self, request, **kwargs):
-        token = kwargs.get('token')
-
-        try:
-            user_id = loads(token, max_age=settings.EMAIL_VERIFICATION_TIMEOUT)
-        except SignatureExpired:
-            return HttpResponse('Verification link has expired.')
-        except BadSignature:
-            return HttpResponse('Verification link is invalid.')
-        else:
-            user = get_user_model().objects.get(id=user_id)
-
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            user = get_user_model().objects.get(email=email)
             if not user.is_verified:
+                token = default_token_generator.make_token(user)
+                verification_url = request.build_absolute_uri(
+                    reverse('email-verification')
+                ) + f'?email={email}&token={token}'
+                send_mail(
+                    'Verify your email',
+                    f'Click the link to verify your email address: {verification_url}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                return Response({'detail': 'Verification email sent'})
+            else:
+                return Response({'detail': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailVerificationConfirmView(generics.GenericAPIView):
+    def get(self, request):
+        email = request.query_params.get('email')
+        token = request.query_params.get('token')
+        try:
+            user = get_user_model().objects.get(email=email)
+            if not user.is_verified and default_token_generator.check_token(user, token):
                 user.is_verified = True
                 user.save()
-
-            return redirect(reverse('token_obtain_pair'))
+                return Response({'detail': 'Email verified'})
+            else:
+                return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
+        except get_user_model().DoesNotExist:
+            return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
