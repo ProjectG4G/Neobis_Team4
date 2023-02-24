@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.core.signing import dumps
-from django.conf import settings
 
 
 class CustomUserManager(BaseUserManager):
@@ -90,16 +86,3 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return "{}".format(self.username)
-
-    def send_email_verification(self):
-        user = self
-        subject = 'Email Verification'
-        message = render_to_string('email_verification.html', {
-            'user': user,
-            'domain': 'G4G',
-            'token': dumps(user.pk),
-        })
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [user.email]
-
-        send_mail(subject, message, from_email, recipient_list)
