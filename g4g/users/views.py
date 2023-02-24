@@ -51,6 +51,7 @@ class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerifactionSerializer
     queryset = User.objects.all()
 
+    # TODO setup permissions
     # permission_classes = (IsAuthenticated,)
 
     def post(self, request):
