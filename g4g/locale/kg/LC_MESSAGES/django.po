@@ -1,0 +1,74 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-03-01 01:10+0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: config/settings.py:165
+msgid "English"
+msgstr "Англисче"
+
+#: config/settings.py:166
+msgid "Kyrgyz"
+msgstr "Кыргызча"
+
+#: config/settings.py:167
+msgid "Russian"
+msgstr "Орусча"
+
+#: users/models.py:37
+msgid "Bishkek, Aaly Tokombaeva, 9/1a"
+msgstr "Бишкек, Аалы Токомбаев, 9/1a"
+
+#: users/models.py:38
+msgid "+996 (505) 054550"
+msgstr "+996 (505) 054550"
+
+#: users/models.py:41
+msgid "Forgot your password?"
+msgstr "Сыр сөздү унуттуңузбу?"
+
+#: users/models.py:42
+msgid "We received a request to reset your password."
+msgstr "Биз сыр сөздү өзгөртүүгө сурам алдык."
+
+#: users/models.py:43
+msgid "If you did not make this request, simply ignore this email."
+msgstr "Эгер сурам кылбаган болсоңуз, бул катты көңүлдөбөңүз."
+
+#: users/models.py:44
+msgid "If you did make this request just click the button below:"
+msgstr "А эгер сурам кылган болсоңуз төмүнкү баскычты басыңыз:"
+
+#: users/models.py:45
+msgid "RESET MY PASSWORD"
+msgstr "СЫР СӨЗДҮ KAЙРА ОРНОТУУ"
+
+#: users/models.py:46
+msgid "If you did not request to change your brand password,"
+msgstr "Сыр сөздү кайра орнотууга сурам кылбасаңыз,"
+
+#: users/models.py:47
+msgid "you do not have to do anything. So that is easy."
+msgstr "эч нерсе кылуунун кереги жок. Кабатыр болбоңуз."
+
+#: users/models.py:56
+msgid "Password Reset for Girls for Girls"
+msgstr "Girls for Girls сайтында сыр сөздү кайра орнотуу"
+
+#: users/models.py:127
+msgid "Email address"
+msgstr "e-mail дараги"
