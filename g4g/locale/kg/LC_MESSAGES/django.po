@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-01 01:10+0600\n"
+"POT-Creation-Date: 2023-03-01 04:58+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,19 +17,19 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: config/settings.py:165
+#: config/settings.py:187
 msgid "English"
 msgstr "Англисче"
 
-#: config/settings.py:166
+#: config/settings.py:188
 msgid "Kyrgyz"
 msgstr "Кыргызча"
 
-#: config/settings.py:167
+#: config/settings.py:189
 msgid "Russian"
 msgstr "Орусча"
 
-#: users/models.py:37
+#: users/models.py:37 users/verification.py:16
 msgid "Bishkek, Aaly Tokombaeva, 9/1a"
 msgstr "Бишкек, Аалы Токомбаев, 9/1a"
 
@@ -71,4 +71,40 @@ msgstr "Girls for Girls сайтында сыр сөздү кайра орнот
 
 #: users/models.py:127
 msgid "Email address"
-msgstr "e-mail дараги"
+msgstr "e-mail дареги"
+
+#: users/verification.py:20
+msgid "Hi, "
+msgstr "Салам, "
+
+#: users/verification.py:21
+msgid "You registered an account on Girls for Girls."
+msgstr "Girls for Girls сайтына катталдыңыз."
+
+#: users/verification.py:22
+msgid "We need a little more information to complete your registration, "
+msgstr "Катталуу жыйынтыкталыш үчүн кошумча маалымат керек болот,"
+
+#: users/verification.py:23
+msgid "including a confirmation of your email address."
+msgstr "анын бири E-mail даректы тастыктоо."
+
+#: users/verification.py:24
+msgid "Please verify your email just clicking the button below:"
+msgstr "Тастыктоо үчүн төмүнкү баскычты басыңыз:"
+
+#: users/verification.py:25
+msgid "VERIFY MY EMAIL"
+msgstr "E-mail даректи тастыктоо"
+
+#: users/verification.py:26
+msgid "We’re glad you’re here!"
+msgstr "Биз менен бирге болушуңузга кубанычтабыз!"
+
+#: users/verification.py:27
+msgid "The Girls for Girls team."
+msgstr "Girls for Girls тобу."
+
+#: users/verification.py:36
+msgid "Email verification for Girls for Girls"
+msgstr "Girls for Girls сайтында E-mail даректи тастыктоо"

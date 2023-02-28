@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-01 01:09+0600\n"
+"POT-Creation-Date: 2023-03-01 04:58+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,19 +20,19 @@ msgstr ""
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
 "(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: config/settings.py:165
+#: config/settings.py:187
 msgid "English"
 msgstr "Английский"
 
-#: config/settings.py:166
+#: config/settings.py:188
 msgid "Kyrgyz"
 msgstr "Кыргызский"
 
-#: config/settings.py:167
+#: config/settings.py:189
 msgid "Russian"
 msgstr "Русский"
 
-#: users/models.py:37
+#: users/models.py:37 users/verification.py:16
 msgid "Bishkek, Aaly Tokombaeva, 9/1a"
 msgstr "Бишкек, Аалы Токомбаев, 9/1а"
 
@@ -78,3 +78,41 @@ msgstr "Сброс пароля для сайта Girls for Girls"
 #: users/models.py:127
 msgid "Email address"
 msgstr "Адрес электронной почты"
+
+#: users/verification.py:20
+msgid "Hi, "
+msgstr "Привет, "
+
+#: users/verification.py:21
+msgid "You registered an account on Girls for Girls."
+msgstr "Вы зарегистрировали аккаунт на Girls for Girls."
+
+#: users/verification.py:22
+msgid "We need a little more information to complete your registration, "
+msgstr "Нам нужно немного больше информации, чтобы завершить регистрацию,"
+
+#: users/verification.py:23
+msgid "including a confirmation of your email address."
+msgstr "включая подтверждение вашего адреса электронной почты."
+
+#: users/verification.py:24
+msgid "Please verify your email just clicking the button below:"
+msgstr ""
+"Пожалуйста, подтвердите свой адрес электронной почты, просто нажав кнопку "
+"ниже:"
+
+#: users/verification.py:25
+msgid "VERIFY MY EMAIL"
+msgstr "ПОДТВЕРДИТЬ ПОЧТУ"
+
+#: users/verification.py:26
+msgid "We’re glad you’re here!"
+msgstr "Мы рады, что вы с нами!"
+
+#: users/verification.py:27
+msgid "The Girls for Girls team."
+msgstr "Команда Girls for Girls."
+
+#: users/verification.py:36
+msgid "Email verification for Girls for Girls"
+msgstr "Подтверждение электронной почты для сайта Girls for Girls"
