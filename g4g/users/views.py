@@ -15,6 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .serializers import RegisterSerializer, LoginSerializer, EmailVerifactionSerializer
+from .verification import send_verification_email
 
 
 class RegisterView(generics.CreateAPIView):
@@ -62,15 +63,11 @@ class EmailVerificationView(generics.GenericAPIView):
             if not user.is_verified:
                 token = default_token_generator.make_token(user)
                 verification_url = request.build_absolute_uri(
-                    reverse('email-verification')
+                    reverse('verification_confirm')
                 ) + f'?email={email}&token={token}'
-                send_mail(
-                    'Verify your email',
-                    f'Click the link to verify your email address: {verification_url}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
-                )
+
+                send_verification_email(user, verification_url)
+
                 return Response({'detail': 'Verification email sent'})
             else:
                 return Response({'detail': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
