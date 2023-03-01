@@ -79,7 +79,7 @@ msgstr "Салам, "
 
 #: users/verification.py:21
 msgid "You registered an account on Girls for Girls."
-msgstr "Girls for Girls сайтына катталдыңыз."
+msgstr "Сиз Girls for Girls сайтына катталдыңыз."
 
 #: users/verification.py:22
 msgid "We need a little more information to complete your registration, "
@@ -87,7 +87,7 @@ msgstr "Катталуу жыйынтыкталыш үчүн кошумча ма
 
 #: users/verification.py:23
 msgid "including a confirmation of your email address."
-msgstr "анын бири E-mail даректы тастыктоо."
+msgstr "анын бири E-mail даректи тастыктоо."
 
 #: users/verification.py:24
 msgid "Please verify your email just clicking the button below:"
@@ -99,7 +99,7 @@ msgstr "E-mail даректи тастыктоо"
 
 #: users/verification.py:26
 msgid "We’re glad you’re here!"
-msgstr "Биз менен бирге болушуңузга кубанычтабыз!"
+msgstr "Биз менен бирге болгонуңузга кубанычтабыз!"
 
 #: users/verification.py:27
 msgid "The Girls for Girls team."
