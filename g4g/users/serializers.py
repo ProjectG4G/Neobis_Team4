@@ -67,3 +67,7 @@ class EmailVerifactionSerializer(serializers.Serializer):
         required=True,
         allow_blank=False,
     )
+
+
+class EmailVerificationConfirmSerializer(serializers.Serializer):
+    pass
