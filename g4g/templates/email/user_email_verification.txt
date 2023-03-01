@@ -1,0 +1,21 @@
+{% autoescape off %}
+
+{{ site_name }}
+
+{{ hi }}
+
+{{ you_registered }}
+
+{{ we_need }}
+
+{{ including }}
+
+{{ verify_below }}
+
+{{ verification_url }}
+
+{{ glad }}
+
+{{ team_g4g}}
+
+{% endautoescape %}
