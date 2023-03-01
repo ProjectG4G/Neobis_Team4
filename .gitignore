@@ -85,6 +85,7 @@ ipython_config.py
 
 # pyenv
 .python-version
-
+.env/
+env/
 venv/
 .venv/
