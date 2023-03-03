@@ -1,6 +1,5 @@
-from django.core.mail import send_mail
-from django.conf import settings
-from django.contrib.auth import get_user_model
+
+from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
@@ -9,6 +8,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,6 +19,7 @@ from .serializers import (
     LoginSerializer,
     EmailVerifactionSerializer,
     EmailVerificationConfirmSerializer,
+    ChangePasswordSerializer,
 )
 from .verification import send_verification_email
 
@@ -105,3 +106,23 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
                 return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
         except get_user_model().DoesNotExist:
             return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ChangePasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            old_password = serializer.data.get("old_password")
+            new_password = serializer.data.get("new_password")
+            user = authenticate(username=request.user.username, password=old_password)
+            if user is not None:
+                user.set_password(new_password)
+                user.save()
+                return Response({"message": "Password updated successfully."}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Invalid old password."}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
