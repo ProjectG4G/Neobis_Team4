@@ -7,6 +7,7 @@ djangorestframework-simplejwt==5.2.2
 drf-spectacular==0.25.1
 inflection==0.5.1
 jsonschema==4.17.3
+psycopg2-binary==2.9.5
 PyJWT==2.6.0
 pyrsistent==0.19.3
 python-decouple==3.7
