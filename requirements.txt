@@ -26,4 +26,3 @@ requests~=2.28.2
 setuptools~=65.6.3
 coreapi~=2.3.3
 coreschema~=0.0.4
-decouple~=0.0.7
