@@ -10,7 +10,7 @@ from .views import (
     RegisterView,
     LoginView,
     EmailVerificationConfirmView,
-    EmailVerificationView,
+    EmailVerificationView, ChangePasswordView,
 )
 
 urlpatterns = [
@@ -20,6 +20,7 @@ urlpatterns = [
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    path('change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('verification/', EmailVerificationView.as_view(), name='verification'),
     path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm')
 ]
