@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
@@ -53,6 +52,7 @@ class LoginView(generics.GenericAPIView):
 
         if not user.check_password(password):
             raise AuthenticationFailed("Incorrect password!")
+
         refresh = RefreshToken.for_user(user)
 
         return Response(
@@ -117,7 +117,9 @@ class ChangePasswordView(APIView):
         if serializer.is_valid():
             old_password = serializer.data.get("old_password")
             new_password = serializer.data.get("new_password")
-            user = authenticate(username=request.user.username, password=old_password)
+
+            user = authenticate(email=request.user.email, phone_number=request.user.phone_number, password=old_password)
+
             if user is not None:
                 user.set_password(new_password)
                 user.save()
