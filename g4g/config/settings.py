@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
 
     # local app
-    'users'
+    'users',
+    'geoapi',
 ]
 
 MIDDLEWARE = [
@@ -149,10 +150,10 @@ AUTH_USER_MODEL = 'users.User'
 
 # Custom Backends
 
-AUTHENTICATION_BACKENDS = [
-    'users.backends.EmailOrPhoneBackend',
+AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-]
+    'users.backends.EmailOrPhoneBackend',
+)
 
 # rest_framework settings
 
