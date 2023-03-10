@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
+from geoapi.models import Region, District
+from geoapi.utils import extract
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -18,6 +20,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
+    region = serializers.CharField(max_length=64)
+    district = serializers.CharField(max_length=64)
+
     class Meta:
         model = User
         fields = ('email', 'phone_number', 'password', 'password2', 'first_name', 'last_name')
@@ -29,6 +34,14 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({'password': 'Password fields did not match.'})
+
+        if not Region.objects.filter(name=attrs['region']).exist():
+            raise serializers.ValidationError({'region': 'Given region {} does not exist!'.format(attrs['region'])})
+
+        if not District.objects.filter(
+                name=extract(attrs['district']).exist() and City.objects.filter(name=extract(attrs['district']))):
+            raise serializers.ValidationError(
+                {'region': 'Given district/city {} does not exist!'.format(attrs['region'])})
 
         return attrs
 
@@ -42,6 +55,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         if not email and not phone_number:
             raise serializers.ValidationError({'Credentials': 'Email or Phone number must be specified.'})
+
+        region = Region.objects.get(name=validated_data['region'])
+        district = Region.objects.get(name=validated_data['district'])
 
         user = User.objects.create(
             email=email,
