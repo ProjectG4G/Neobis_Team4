@@ -1,4 +1,5 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import ListField, DictField
 
 from .models import (
     Country,
@@ -37,3 +38,9 @@ class VillageSerializer(ModelSerializer):
     class Meta:
         model = Village
         fields = '__all__'
+
+
+class JSONDataSerializer(Serializer):
+    regions = ListField()
+    districts = DictField(child=ListField())
+    villages = DictField(child=ListField())
