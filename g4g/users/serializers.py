@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-from geoapi.models import Region, District
+from geoapi.models import Region, District, City
 from geoapi.utils import extract
 
 
@@ -25,7 +25,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'phone_number', 'password', 'password2', 'first_name', 'last_name')
+        fields = ('email', 'phone_number', 'password', 'password2', 'first_name', 'last_name', 'region', 'district',)
         extra_kwargs = {
             'first_name': {'required': True},
             'last_name': {'required': True}
@@ -35,19 +35,28 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({'password': 'Password fields did not match.'})
 
-        if not Region.objects.filter(name=attrs['region']).exist():
+        if not Region.objects.filter(name=attrs['region']).exists():
             raise serializers.ValidationError({'region': 'Given region {} does not exist!'.format(attrs['region'])})
-
-        if not District.objects.filter(
-                name=extract(attrs['district']).exist() and City.objects.filter(name=extract(attrs['district']))):
+        if 'району' in attrs['district']:
+            if not District.objects.filter(
+                    name=extract(attrs['district'])).exists():
+                raise serializers.ValidationError(
+                    {'region': 'Given district {} does not exist!'.format(attrs['region'])})
+        elif not City.objects.filter(name=extract(attrs['district'])).exists():
             raise serializers.ValidationError(
-                {'region': 'Given district/city {} does not exist!'.format(attrs['region'])})
+                {'region': 'Given city {} does not exist!'.format(attrs['region'])})
 
         return attrs
 
     @staticmethod
     def none_if_empty(obj):
         return obj if obj else None
+
+    @staticmethod
+    def obj_by_name(model, value):
+        if model.objects.filter(name=value).exists():
+            return model.objects.get(name=value)
+        return None
 
     def create(self, validated_data):
         email = self.none_if_empty(validated_data['email'])
@@ -57,13 +66,22 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'Credentials': 'Email or Phone number must be specified.'})
 
         region = Region.objects.get(name=validated_data['region'])
-        district = Region.objects.get(name=validated_data['district'])
+
+        if 'району' in validated_data['district']:
+            district = self.obj_by_name(District, extract(validated_data['district']))
+            city = None
+        else:
+            district = None
+            city = self.obj_by_name(City, extract(validated_data['district']))
 
         user = User.objects.create(
             email=email,
             phone_number=phone_number,
             first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
+            last_name=validated_data['last_name'],
+            region=region,
+            district=district,
+            city=city,
         )
 
         user.set_password(validated_data['password'])
