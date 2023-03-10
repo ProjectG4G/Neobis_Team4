@@ -13,7 +13,7 @@ from .serializers import (
     RegionSerializer,
     DistrictSerializer,
     VillageSerializer,
-    JSONDataSerializer,
+    GeoAPIJSONDataSerializer,
 )
 
 from .models import (
@@ -86,7 +86,7 @@ class VillageViewSet(ModelViewSet):
 
 
 class GeoDataAPIView(ListAPIView):
-    serializer_class = JSONDataSerializer
+    serializer_class = GeoAPIJSONDataSerializer
 
     def get(self, request, *args, **kwargs):
         with open(settings.STATIC_ROOT + 'geodata/geodata.json', 'r') as file:
@@ -95,7 +95,7 @@ class GeoDataAPIView(ListAPIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]

@@ -10,6 +10,8 @@ from django.conf import settings
 
 from django_rest_passwordreset.signals import reset_password_token_created
 
+from geoapi.models import Region, District, City, Village
+
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
@@ -139,10 +141,10 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
-    country = models.CharField(max_length=50)
-    # TODO add choice fields ?
-    region = models.CharField(max_length=50)
-    district = models.CharField(max_length=50)
+    region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
+    district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
+    city = models.ForeignKey('geoapi.City', on_delete=models.SET_NULL, null=True, blank=True)
+    village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)
 

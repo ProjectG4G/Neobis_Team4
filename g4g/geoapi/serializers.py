@@ -40,7 +40,7 @@ class VillageSerializer(ModelSerializer):
         fields = '__all__'
 
 
-class JSONDataSerializer(Serializer):
+class GeoAPIJSONDataSerializer(Serializer):
     regions = ListField()
     districts = DictField(child=ListField())
     villages = DictField(child=ListField())
