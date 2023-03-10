@@ -18,4 +18,4 @@ router.register('districts', DistrictViewSet, basename='district')
 router.register('villages', VillageViewSet, basename='village')
 
 urlpatterns = [path('json/', GeoDataAPIView.as_view(), name='geodata_json'), ]
-urlpatterns += router.urls
+# urlpatterns += router.urls
