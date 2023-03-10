@@ -3,9 +3,9 @@ import json
 from django.conf import settings
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser, AllowAny
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView, ListAPIView
 
 from .serializers import (
     CountrySerializer,
@@ -13,6 +13,7 @@ from .serializers import (
     RegionSerializer,
     DistrictSerializer,
     VillageSerializer,
+    JSONDataSerializer,
 )
 
 from .models import (
@@ -84,8 +85,17 @@ class VillageViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class GeoDataAPIView(APIView):
+class GeoDataAPIView(ListAPIView):
+    serializer_class = JSONDataSerializer
+
     def get(self, request, *args, **kwargs):
         with open(settings.STATIC_ROOT + 'geodata/geodata.json', 'r') as file:
             data = json.load(file)
         return Response(data)
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
