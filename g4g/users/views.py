@@ -4,10 +4,16 @@ from django.urls import reverse
 
 from rest_framework import generics, status
 
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticatedOrReadOnly,
+    IsAdminUser,
+    IsAuthenticated,
+)
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -19,8 +25,13 @@ from .serializers import (
     EmailVerifactionSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
+    UserProfileSerializer,
+    UserProfileUpdateSerializer,
 )
+
 from .verification import send_verification_email
+
+from .permissions import IsProfileOwner
 
 
 class RegisterView(generics.CreateAPIView):
@@ -128,3 +139,23 @@ class ChangePasswordView(APIView):
                 return Response({"message": "Invalid old password."}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfileView(ModelViewSet):
+    queryset = User.objects.all()
+
+    serializer_class = UserProfileUpdateSerializer
+
+    def get_permissions(self):
+        if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
+            permission_classes = [IsProfileOwner]
+        elif self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return UserProfileSerializer
+        return UserProfileUpdateSerializer
