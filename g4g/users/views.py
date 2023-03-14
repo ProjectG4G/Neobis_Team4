@@ -16,7 +16,7 @@ from .models import User
 from .serializers import (
     RegisterSerializer,
     LoginSerializer,
-    EmailVerifactionSerializer,
+    EmailVerificationSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
 )
@@ -64,7 +64,7 @@ class LoginView(generics.GenericAPIView):
 
 
 class EmailVerificationView(generics.GenericAPIView):
-    serializer_class = EmailVerifactionSerializer
+    serializer_class = EmailVerificationSerializer
     queryset = User.objects.all()
 
     # TODO setup permissions
