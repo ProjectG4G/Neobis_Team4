@@ -6,6 +6,9 @@ from geoapi.models import Region, District, City
 from geoapi.utils import extract
 
 
+# from geoapi.serializers import RegionSerializer
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         allow_blank=True,
@@ -20,6 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
+    # region = RegionSerializer()
     region = serializers.CharField(max_length=64)
     district = serializers.CharField(max_length=64)
 
@@ -111,3 +115,41 @@ class ChangePasswordSerializer(serializers.Serializer):
     model = User
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'region',
+            'district',
+            'city',
+            'village',
+            'is_verified',
+        )
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'region',
+            'district',
+            'city',
+            'village',
+            'is_verified',
+        )
+
+        depth = 1
