@@ -141,6 +141,9 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
+    # add default profile picture
+    profile_picture = models.ImageField(upload_to="profile_picure/", null=True, blank=True)
+
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
     district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
     city = models.ForeignKey('geoapi.City', on_delete=models.SET_NULL, null=True, blank=True)
