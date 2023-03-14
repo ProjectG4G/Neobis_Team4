@@ -9,7 +9,6 @@ from rest_framework.generics import GenericAPIView, ListAPIView
 
 from .serializers import (
     CountrySerializer,
-    CitySerializer,
     RegionSerializer,
     DistrictSerializer,
     VillageSerializer,
@@ -18,7 +17,6 @@ from .serializers import (
 
 from .models import (
     Country,
-    City,
     Region,
     District,
     Village,
@@ -40,18 +38,6 @@ class CountryViewSet(ModelViewSet):
 class RegionViewSet(ModelViewSet):
     queryset = Region.objects.all()
     serializer_class = RegionSerializer
-
-    def get_permissions(self):
-        if self.action == 'list':
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAdminUser]
-        return [permission() for permission in permission_classes]
-
-
-class CityViewSet(ModelViewSet):
-    queryset = City.objects.all()
-    serializer_class = CitySerializer
 
     def get_permissions(self):
         if self.action == 'list':
