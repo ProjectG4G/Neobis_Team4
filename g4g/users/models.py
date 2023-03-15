@@ -10,7 +10,7 @@ from django.conf import settings
 
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from geoapi.models import Region, District, City, Village
+from geoapi.models import Region, District, Village
 
 
 @receiver(reset_password_token_created)
@@ -141,9 +141,11 @@ class User(AbstractUser):
 
     objects = CustomUserManager()
 
+    # add default profile picture
+    profile_picture = models.ImageField(upload_to="profile_picure/", null=True, blank=True)
+
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
     district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
-    city = models.ForeignKey('geoapi.City', on_delete=models.SET_NULL, null=True, blank=True)
     village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)

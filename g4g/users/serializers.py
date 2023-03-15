@@ -2,8 +2,11 @@ from rest_framework import serializers
 from .models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
-from geoapi.models import Region, District, City
+from geoapi.models import Region, District
 from geoapi.utils import extract
+
+
+# from geoapi.serializers import RegionSerializer
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -20,9 +23,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
-    region = serializers.CharField(max_length=64)
-    district = serializers.CharField(max_length=64)
-
     class Meta:
         model = User
         fields = ('email', 'phone_number', 'password', 'password2', 'first_name', 'last_name', 'region', 'district',)
@@ -35,16 +35,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({'password': 'Password fields did not match.'})
 
-        if not Region.objects.filter(name=attrs['region']).exists():
-            raise serializers.ValidationError({'region': 'Given region {} does not exist!'.format(attrs['region'])})
-        if 'району' in attrs['district']:
-            if not District.objects.filter(
-                    name=extract(attrs['district'])).exists():
-                raise serializers.ValidationError(
-                    {'region': 'Given district {} does not exist!'.format(attrs['region'])})
-        elif not City.objects.filter(name=extract(attrs['district'])).exists():
+        region = attrs['region']
+        district = attrs['district']
+
+        if not Region.objects.filter(id=region.id).exists():
+            raise serializers.ValidationError({'detail': 'Given region {} does not exist!'.format(region)})
+
+        if not District.objects.filter(id=district.id).exists():
+            raise serializers.ValidationError({'detail': 'Given district/city {} does not exist!'.format(district)})
+
+        if district.region != region:
             raise serializers.ValidationError(
-                {'region': 'Given city {} does not exist!'.format(attrs['region'])})
+                {'detail': 'Given district or city {} doesn\'t belong to region {}'.format(district, region)})
 
         return attrs
 
@@ -63,25 +65,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         phone_number = self.none_if_empty(validated_data['phone_number'])
 
         if not email and not phone_number:
-            raise serializers.ValidationError({'Credentials': 'Email or Phone number must be specified.'})
-
-        region = Region.objects.get(name=validated_data['region'])
-
-        if 'району' in validated_data['district']:
-            district = self.obj_by_name(District, extract(validated_data['district']))
-            city = None
-        else:
-            district = None
-            city = self.obj_by_name(City, extract(validated_data['district']))
+            raise serializers.ValidationError({'detail': 'Email or Phone number must be specified.'})
 
         user = User.objects.create(
             email=email,
             phone_number=phone_number,
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            region=region,
-            district=district,
-            city=city,
+            region=validated_data['region'],
+            district=validated_data['district'],
         )
 
         user.set_password(validated_data['password'])
@@ -96,7 +88,7 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['phone_number', 'password', ]
 
 
-class EmailVerifactionSerializer(serializers.Serializer):
+class EmailVerificationSerializer(serializers.Serializer):
     email = serializers.EmailField(
         required=True,
         allow_blank=False,
@@ -111,3 +103,39 @@ class ChangePasswordSerializer(serializers.Serializer):
     model = User
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'region',
+            'district',
+            'village',
+            'is_verified',
+        )
+
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'region',
+            'district',
+            'village',
+            'is_verified',
+        )
+
+        depth = 1

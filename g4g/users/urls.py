@@ -6,12 +6,19 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView,
 )
 
+from rest_framework.routers import SimpleRouter
+
 from .views import (
     RegisterView,
     LoginView,
     EmailVerificationConfirmView,
-    EmailVerificationView, ChangePasswordView,
+    EmailVerificationView,
+    ChangePasswordView,
+    UserProfileView
 )
+
+router = SimpleRouter()
+router.register('user', UserProfileView, basename='users')
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -22,5 +29,6 @@ urlpatterns = [
     path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     path('change-password/', ChangePasswordView.as_view(), name='change_password'),
     path('verification/', EmailVerificationView.as_view(), name='verification'),
-    path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm')
+    path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm'),
+    path('', include(router.urls)),
 ]

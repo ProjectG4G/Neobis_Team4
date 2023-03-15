@@ -20,29 +20,27 @@ class Region(models.Model):
 
 
 class District(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=False, blank=False)
+    name = models.CharField(max_length=255, null=False, blank=False)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
+    city_district = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)
+
+    DISTRICT_TYPES = (
+        (1, 'District'),
+        (2, 'City'),
+    )
+
+    type = models.IntegerField(choices=DISTRICT_TYPES, default=1, null=False)
 
     def __str__(self):
-        return self.name
-
-
-class City(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=False, blank=False)
-    region = models.ForeignKey(Region, on_delete=models.CASCADE)
-    district = models.ForeignKey(District, on_delete=models.CASCADE, null=True)
-
-    class Meta:
-        verbose_name_plural = "Cities"
-
-    def __str__(self):
-        return self.name
+        if self.type == 1:
+            return self.name + ' району'
+        else:
+            return self.name + ' шаары'
 
 
 class Village(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False)
     district = models.ForeignKey(District, on_delete=models.CASCADE, null=True)
-    city = models.ForeignKey(City, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
