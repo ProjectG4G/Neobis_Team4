@@ -11,7 +11,7 @@ def extract(name):
 
 
 def does_exist(model, name, district_type=None):
-    if not type:
+    if not district_type:
         return model.objects.filter(name=name).exists()
     return model.objects.filter(name=name, type=district_type).exists()
 
