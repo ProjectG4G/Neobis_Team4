@@ -18,7 +18,7 @@ from .views import (
 )
 
 router = SimpleRouter()
-router.register('user', UserProfileView, basename='users')
+router.register('users', UserProfileView, basename='user')
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
