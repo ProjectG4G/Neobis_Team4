@@ -117,7 +117,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'profile_picture',
             'region',
             'district',
-            'city',
             'village',
             'is_verified',
         )
@@ -135,7 +134,6 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             'profile_picture',
             'region',
             'district',
-            'city',
             'village',
             'is_verified',
         )
