@@ -150,7 +150,7 @@ class UserProfileView(ModelViewSet):
         if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
             permission_classes = [IsProfileOwner]
         elif self.action == 'list':
-            permission_classes = [AllowAny]
+            permission_classes = [IsAdminUser]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
