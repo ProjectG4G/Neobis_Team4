@@ -14,7 +14,8 @@ from .views import (
     EmailVerificationConfirmView,
     EmailVerificationView,
     ChangePasswordView,
-    UserProfileView
+    UserProfileView,
+    UserRegisterStatisticView,
 )
 
 router = SimpleRouter()
@@ -31,4 +32,5 @@ urlpatterns = [
     path('verification/', EmailVerificationView.as_view(), name='verification'),
     path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm'),
     path('', include(router.urls)),
+    path('stats/new-users/', UserRegisterStatisticView.as_view(), name='stats-new-users'),
 ]
