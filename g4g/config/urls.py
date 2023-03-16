@@ -5,6 +5,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
+    path('api/news/', include('news.urls')),
     path('geoapi/', include('geoapi.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
