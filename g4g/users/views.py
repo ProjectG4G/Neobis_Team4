@@ -18,6 +18,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import User
 from .serializers import (
     RegisterSerializer,
@@ -31,7 +33,9 @@ from .serializers import (
 
 from .verification import send_verification_email
 
-from .permissions import IsProfileOwner
+from .permissions import IsProfileOwnerOrAdmin
+
+from .filters import UserFilter
 
 
 class RegisterView(generics.CreateAPIView):
@@ -143,12 +147,16 @@ class ChangePasswordView(APIView):
 
 class UserProfileView(ModelViewSet):
     queryset = User.objects.all()
-
     serializer_class = UserProfileUpdateSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = UserFilter
+    http_method_names = ['update', 'get', 'put', 'patch', 'head', 'options']
+    
+    # filterset_fields = ['region']
 
     def get_permissions(self):
         if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
-            permission_classes = [IsProfileOwner]
+            permission_classes = [IsProfileOwnerOrAdmin]
         elif self.action == 'list':
             permission_classes = [IsAdminUser]
         else:
@@ -159,3 +167,23 @@ class UserProfileView(ModelViewSet):
         if self.action == 'list':
             return UserProfileSerializer
         return UserProfileUpdateSerializer
+
+
+class UserRegisterStatisticView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = dict(
+            one=User.objects.filter(date_joined__month=1, date_joined__year=2023).count(),
+            two=User.objects.filter(date_joined__month=2, date_joined__year=2023).count(),
+            three=User.objects.filter(date_joined__month=3, date_joined__year=2023).count(),
+            four=User.objects.filter(date_joined__month=4, date_joined__year=2023).count(),
+            five=User.objects.filter(date_joined__month=5, date_joined__year=2023).count(),
+            six=User.objects.filter(date_joined__month=6, date_joined__year=2023).count(),
+            seven=User.objects.filter(date_joined__month=7, date_joined__year=2023).count(),
+            eight=User.objects.filter(date_joined__month=8, date_joined__year=2023).count(),
+            nine=User.objects.filter(date_joined__month=9, date_joined__year=2023).count(),
+            ten=User.objects.filter(date_joined__month=10, date_joined__year=2023).count(),
+            eleven=User.objects.filter(date_joined__month=11, date_joined__year=2023).count(),
+            twelve=User.objects.filter(date_joined__month=12, date_joined__year=2023).count(),
+        )
+        print(data)
+        return Response(data)
