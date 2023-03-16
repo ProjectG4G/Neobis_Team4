@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # local app
     'users',
     'geoapi',
+    'news',
 ]
 
 MIDDLEWARE = [
@@ -217,7 +218,6 @@ LANGUAGES = [
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale/')
 ]
-
 
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUD_NAME'),
