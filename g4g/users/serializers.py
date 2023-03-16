@@ -105,37 +105,39 @@ class ChangePasswordSerializer(serializers.Serializer):
     new_password = serializers.CharField(required=True)
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
+class UserProfileSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = (
             'id',
+            'url',
             'email',
             'phone_number',
             'first_name',
             'last_name',
             'profile_picture',
-            'region',
-            'district',
-            'village',
+            # 'region',
+            # 'district',
+            # 'village',
             'is_verified',
         )
 
 
-class UserProfileUpdateSerializer(serializers.ModelSerializer):
+class UserProfileUpdateSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = (
             'id',
+            'url',
             'email',
             'phone_number',
             'first_name',
             'last_name',
             'profile_picture',
-            'region',
-            'district',
-            'village',
+            # 'region',
+            # 'district',
+            # 'village',
             'is_verified',
         )
 
-        depth = 1
+        # depth = 1
