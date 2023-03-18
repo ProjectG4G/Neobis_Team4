@@ -5,20 +5,27 @@ from users.models import User
 
 class Mentorship(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    title = models.CharField(max_length=250)
+    title = models.CharField(max_length=255)
     content = models.TextField()
-    link = models.SlugField()
-    pictures = models.ImageField()
+    link = models.URLField()
 
     def __str__(self):
-        return self.name
+        return self.title
+
+
+class MentorshipImage(models.Model):
+    mentorship = models.ForeignKey(Mentorship, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='images/mentorship/')
+
+    def __str__(self):
+        return self.mentorship.title
 
 
 class Applications(models.Model):
-    mentorship_id = models.ForeignKey(
+    mentorship = models.ForeignKey(
         Mentorship,
         on_delete=models.CASCADE,
-        verbose_name='Заявки на менторскую программу')
+        verbose_name='Менторская программа')
     submit_date = models.DateTimeField()
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -36,23 +43,23 @@ class Applications(models.Model):
         blank=True,
     )
 
-    region = models.CharField(max_length=50)
-    district = models.CharField(max_length=50)
-    village = models.CharField(max_length=50)
+    region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True)
+    district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True)
+    village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True)
     goals = models.TextField()
     expectations = models.TextField()
-    resume = models.SlugField()
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    resume = models.FileField(upload_to='files/mentorship/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.mentorship.title
 
 
 class Feedback(models.Model):
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=250)
     content = models.TextField()
-    mentorship_id = models.ForeignKey(
+    mentorship = models.ForeignKey(
         Mentorship,
         on_delete=models.CASCADE,
         verbose_name='отзыв о меноторской программе')
@@ -68,3 +75,20 @@ class FAQ(models.Model):
 
     def __str__(self):
         return f'{self.question}'
+
+
+class Questions(models.Model):
+    mentorship = models.ForeignKey(
+        Mentorship,
+        on_delete=models.CASCADE,
+        verbose_name='Ментрская программа')
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=50)
+    email = models.CharField(max_length=50)
+    region = models.CharField(max_length=250)
+    district = models.CharField(max_length=250)
+    village = models.CharField(max_length=250)
+    goals = models.TextField()
+    expectations = models.TextField()
+    resume = models.CharField(max_length=250)
