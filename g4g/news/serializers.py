@@ -58,3 +58,23 @@ class ArticleSerializer(serializers.ModelSerializer):
             article.tags.add(Tag.objects.get(id=tag))
 
         return article
+
+
+class AddTagSerializer(serializers.Serializer):
+    class Meta:
+        model = Tag
+        fields = ['id']
+
+
+class ArticleAddTagsSerializer(serializers.Serializer):
+    added_tags = serializers.ListField(
+        child=AddTagSerializer(),
+        write_only=True,
+        required=False,
+    )
+
+    def update(self, instance, validated_data):
+        added_tags = validated_data['added_tags']
+        for tag in added_tags:
+            print(tag)
+            instance.tags.add(Tag.objects.get(id=tag))
