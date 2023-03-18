@@ -8,6 +8,8 @@ urlpatterns = [
     path('api/news/', include('news.urls')),
     path('geoapi/', include('geoapi.urls')),
 
+    path('', include('rest_framework.urls')),
+
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
     path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
