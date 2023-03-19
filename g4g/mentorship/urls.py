@@ -5,7 +5,7 @@ from mentorship.views import MentorshipViewSet, ApplicationsViewSet, FeedbackVie
 
 router = SimpleRouter()
 router.register('mentorships', MentorshipViewSet, basename='mentorship')
-router.register('questions', QuestionsViewSet , basename='questions')
+router.register('questions', QuestionsViewSet, basename='questions')
 router.register('applications', ApplicationsViewSet, basename='applications')
 router.register('feedback', FeedbackViewSet, basename='feedback')
 router.register('FAQ', FAQViewSet, basename='FAQ')
