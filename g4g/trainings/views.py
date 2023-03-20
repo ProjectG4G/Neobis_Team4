@@ -1,6 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+
+from rest_framework import viewsets, filters
 from rest_framework.viewsets import ModelViewSet
+
 from .permissions import IsAdminOrReadOnly
 
 from .serializers import (
@@ -11,15 +13,24 @@ from .serializers import (
     TrainingApplicationsSerializer,
     TrainingQuestionsSerializer,
 )
-from .models import Trainings, Comment, Rating, FAQ, TrainingsQuestions, TrainingsApplications
+
+from .models import (
+    Trainings,
+    Comment,
+    Rating,
+    FAQ,
+    TrainingsQuestions,
+    TrainingsApplications,
+)
 
 
 class TrainingsViewSet(ModelViewSet):
     queryset = Trainings.objects.all()
     serializer_class = TrainingsSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ['title']
+    search_fields = ('title', 'content', 'header1', 'header2',)
 
 
 class QuestionsViewSet(ModelViewSet):
