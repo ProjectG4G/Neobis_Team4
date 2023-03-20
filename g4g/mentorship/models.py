@@ -92,3 +92,9 @@ class MentorshipQuestions(models.Model):
     goals = models.TextField()
     expectations = models.TextField()
     resume = models.CharField(max_length=250)
+
+
+class MentorProfile(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='images/mentor/')
+    description = models.TextField()
