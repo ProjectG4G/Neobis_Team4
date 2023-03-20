@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     # local app
     'users',
     'geoapi',
+    'mentorship',
+    'trainings',
 ]
 
 MIDDLEWARE = [
