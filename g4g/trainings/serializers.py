@@ -21,11 +21,10 @@ class TrainingsSerializer(ModelSerializer):
         model = Trainings
         fields = [
             'id',
-            'date',
             'title',
-            'content',
+            'description',
             'images',
-            'link',
+            'url',
             'uploaded_images',
         ]
 
@@ -40,31 +39,31 @@ class TrainingsSerializer(ModelSerializer):
         return trainings
 
 
-class CommentSerializer(ModelSerializer):
+class TrainingCommentSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
 
 
-class RatingSerializer(ModelSerializer):
+class TrainingRatingSerializer(ModelSerializer):
     class Meta:
         model = Rating
         fields = '__all__'
 
 
-class FAQSerializer(ModelSerializer):
+class TrainingFAQSerializer(ModelSerializer):
     class Meta:
         model = FAQ
         fields = '__all__'
 
 
-class ApplicationsSerializer(ModelSerializer):
+class TrainingApplicationsSerializer(ModelSerializer):
     class Meta:
         model = TrainingsApplications
         fields = '__all__'
 
 
-class QuestionsSerializer(ModelSerializer):
+class TrainingQuestionsSerializer(ModelSerializer):
     class Meta:
         model = TrainingsQuestions
         fields = '__all__'
