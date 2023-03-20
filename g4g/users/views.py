@@ -2,7 +2,9 @@ from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
+
+from rest_framework.decorators import action
 
 from rest_framework.permissions import (
     AllowAny,
@@ -18,6 +20,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from .models import User
 from .serializers import (
     RegisterSerializer,
@@ -27,11 +31,15 @@ from .serializers import (
     ChangePasswordSerializer,
     UserProfileSerializer,
     UserProfileUpdateSerializer,
+    ModeratorSerializer,
+    DummySerializer,
 )
 
 from .verification import send_verification_email
 
-from .permissions import IsProfileOwner
+from .permissions import IsProfileOwnerOrAdmin
+
+from .filters import UserFilter
 
 
 class RegisterView(generics.CreateAPIView):
@@ -143,19 +151,92 @@ class ChangePasswordView(APIView):
 
 class UserProfileView(ModelViewSet):
     queryset = User.objects.all()
-
     serializer_class = UserProfileUpdateSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_class = UserFilter
+    search_fields = ('email', 'phone_number', 'first_name', 'last_name',)
 
     def get_permissions(self):
         if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
-            permission_classes = [IsProfileOwner]
-        elif self.action == 'list':
-            permission_classes = [IsAdminUser]
+            permission_classes = [IsProfileOwnerOrAdmin]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [IsAdminUser]
+
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         if self.action == 'list':
             return UserProfileSerializer
+        if self.action == 'create':
+            return ModeratorSerializer
+        # if self.action == 'make_moderator':
+        #     return DummySerializer
+        # if self.action == 'make_mentor':
+        #     return DummySerializer
         return UserProfileUpdateSerializer
+
+    @action(methods=['put'], detail=True)
+    def make_moderator(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+
+        user.is_staff = not user.is_staff
+
+        user.save()
+
+        if user.is_staff:
+            return Response({
+                'detail': 'New Moderator Added',
+                'user': user.id,
+            })
+        else:
+            return Response({
+                'detail': 'Moderator Deleted',
+                'user': user.id,
+            })
+
+    @action(methods=['put'], detail=True)
+    def make_mentor(self, request, pk=None):
+        user = User.objects.get(pk=pk)
+
+        user.is_mentor = not user.is_mentor
+
+        user.save()
+
+        if user.is_mentor:
+            return Response({
+                'detail': 'New Mentor Added',
+                'user': user.id,
+            })
+        else:
+            return Response({
+                'detail': 'Mentor Deleted',
+                'user': user.id,
+            })
+
+
+class UserRegisterStatisticView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = dict(
+            one=User.objects.filter(date_joined__month=1, date_joined__year=2023).count(),
+            two=User.objects.filter(date_joined__month=2, date_joined__year=2023).count(),
+            three=User.objects.filter(date_joined__month=3, date_joined__year=2023).count(),
+            four=User.objects.filter(date_joined__month=4, date_joined__year=2023).count(),
+            five=User.objects.filter(date_joined__month=5, date_joined__year=2023).count(),
+            six=User.objects.filter(date_joined__month=6, date_joined__year=2023).count(),
+            seven=User.objects.filter(date_joined__month=7, date_joined__year=2023).count(),
+            eight=User.objects.filter(date_joined__month=8, date_joined__year=2023).count(),
+            nine=User.objects.filter(date_joined__month=9, date_joined__year=2023).count(),
+            ten=User.objects.filter(date_joined__month=10, date_joined__year=2023).count(),
+            eleven=User.objects.filter(date_joined__month=11, date_joined__year=2023).count(),
+            twelve=User.objects.filter(date_joined__month=12, date_joined__year=2023).count(),
+        )
+        print(data)
+        return Response(data)
+
+
+class ModeratorViewSet(ModelViewSet):
+    queryset = User.objects.filter(is_staff=True)
+    
+    serializer_class = ModeratorSerializer
+
+    permission_classes = [IsAdminUser]
