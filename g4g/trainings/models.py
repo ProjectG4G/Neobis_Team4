@@ -6,9 +6,16 @@ from users.models import User
 
 class Trainings(models.Model):
     title = models.CharField(max_length=255)
-    description = models.TextField()
-    url = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="images/")
+
+    header1 = models.TextField(blank=True, null=True)
+    header2 = models.TextField(blank=True, null=True)
+    header3 = models.TextField(blank=True, null=True)
+    header4 = models.TextField(blank=True, null=True)
+
+    body1 = models.TextField(blank=True, null=True)
+    body2 = models.TextField(blank=True, null=True)
+    body3 = models.TextField(blank=True, null=True)
+    body4 = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -53,26 +60,34 @@ class TrainingsQuestions(models.Model):
         Trainings,
         on_delete=models.CASCADE,
         verbose_name='Тренинги')
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
+
     phone_number = models.CharField(max_length=50)
     email = models.CharField(max_length=50)
+
     region = models.CharField(max_length=250)
     district = models.CharField(max_length=250)
     village = models.CharField(max_length=250)
+
     goals = models.TextField()
     expectations = models.TextField()
     resume = models.CharField(max_length=250)
+    why_you = models.CharField(max_length=250)
 
 
 class TrainingsApplications(models.Model):
-    mentorship = models.ForeignKey(
+    training = models.ForeignKey(
         Trainings,
         on_delete=models.CASCADE,
         verbose_name='Тренинги')
-    submit_date = models.DateTimeField()
+
+    submit_date = models.DateTimeField(auto_now_add=True)
+
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
+
     phone_number = models.CharField(
         max_length=12,
         null=True,
@@ -90,11 +105,24 @@ class TrainingsApplications(models.Model):
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True)
     district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True)
     village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True)
-    goals = models.TextField()
+
+    can_attend = models.BooleanField()
+
+    interested1 = models.TextField()
+
+    why_you = models.TextField()
+
+    interested2 = models.TextField()
+
     expectations = models.TextField()
-    resume = models.FileField(upload_to='files/mentorship/')
+
+    # resume = models.FileField(upload_to='files/mentorship/')
+
+    about_training = models.CharField(max_length=255)
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.mentorship.title
+    is_accepted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.training.title
