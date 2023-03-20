@@ -1,4 +1,5 @@
 from django.db import models
+from parler.models import TranslatableModel, TranslatedFields
 
 
 class Tag(models.Model):
@@ -8,11 +9,12 @@ class Tag(models.Model):
         return self.name
 
 
-class Article(models.Model):
-    title = models.CharField(max_length=255, null=False, blank=False)
-    content = models.TextField(null=False, blank=False)
-
-    # author = models.ForeignKey('Author', on_delete=models.PROTECT)
+class Article(TranslatableModel):
+    translations = TranslatedFields(
+        title=models.CharField(max_length=255, null=False, blank=False),
+        content=models.TextField(null=False, blank=False),
+    )
+    # author = models.ForeignKey('users.User', on_delete=models.PROTECT)
 
     published = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)

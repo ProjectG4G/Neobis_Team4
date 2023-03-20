@@ -40,3 +40,7 @@ class ArticleViewSet(ModelViewSet):
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'])
+    def kg(self, request):
+        serializer =
