@@ -1,5 +1,7 @@
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db import models
+from users.models import User
 
 
 class Trainings(models.Model):
@@ -46,7 +48,7 @@ class TrainingsImage(models.Model):
         return self.trainings.title
 
 
-class Questions(models.Model):
+class TrainingsQuestions(models.Model):
     trainings = models.ForeignKey(
         Trainings,
         on_delete=models.CASCADE,
@@ -61,3 +63,38 @@ class Questions(models.Model):
     goals = models.TextField()
     expectations = models.TextField()
     resume = models.CharField(max_length=250)
+
+
+class TrainingsApplications(models.Model):
+    mentorship = models.ForeignKey(
+        Trainings,
+        on_delete=models.CASCADE,
+        verbose_name='Тренинги')
+    submit_date = models.DateTimeField()
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    phone_number = models.CharField(
+        max_length=12,
+        null=True,
+        unique=True,
+    )
+
+    email = models.EmailField(
+        _("Email address"),
+        max_length=255,
+        null=True,
+        unique=True,
+        blank=True,
+    )
+
+    region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True)
+    district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True)
+    village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True)
+    goals = models.TextField()
+    expectations = models.TextField()
+    resume = models.FileField(upload_to='files/mentorship/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.mentorship.title
+

@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import FAQ, Rating, Comment, Trainings, TrainingsImage
+from .models import FAQ, Rating, Comment, Trainings, TrainingsImage, TrainingsApplications, TrainingsQuestions
 from rest_framework import serializers
 
 
@@ -55,4 +55,16 @@ class RatingSerializer(ModelSerializer):
 class FAQSerializer(ModelSerializer):
     class Meta:
         model = FAQ
+        fields = '__all__'
+
+
+class ApplicationsSerializer(ModelSerializer):
+    class Meta:
+        model = TrainingsApplications
+        fields = '__all__'
+
+
+class QuestionsSerializer(ModelSerializer):
+    class Meta:
+        model = TrainingsQuestions
         fields = '__all__'
