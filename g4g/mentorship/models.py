@@ -21,7 +21,7 @@ class MentorshipImage(models.Model):
         return self.mentorship.title
 
 
-class Applications(models.Model):
+class MentorshipApplications(models.Model):
     mentorship = models.ForeignKey(
         Mentorship,
         on_delete=models.CASCADE,
@@ -77,7 +77,7 @@ class FAQ(models.Model):
         return f'{self.question}'
 
 
-class Questions(models.Model):
+class MentorshipQuestions(models.Model):
     mentorship = models.ForeignKey(
         Mentorship,
         on_delete=models.CASCADE,

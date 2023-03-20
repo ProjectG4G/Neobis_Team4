@@ -1,7 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
-
-from mentorship.views import MentorshipViewSet, ApplicationsViewSet, FeedbackViewSet, FAQViewSet, QuestionsViewSet
+from mentorship.views import (
+    MentorshipViewSet,
+    ApplicationsViewSet,
+    FeedbackViewSet,
+    FAQViewSet,
+    QuestionsViewSet,
+)
 
 router = SimpleRouter()
 router.register('mentorships', MentorshipViewSet, basename='mentorship')

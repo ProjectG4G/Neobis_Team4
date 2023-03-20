@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Mentorship, Applications, Feedback, FAQ, Questions, MentorshipImage
+from .models import Mentorship, MentorshipApplications, Feedback, FAQ, MentorshipQuestions, MentorshipImage
 from rest_framework import serializers
 
 
@@ -43,7 +43,7 @@ class MentorshipSerializer(ModelSerializer):
 
 class ApplicationsSerializer(ModelSerializer):
     class Meta:
-        model = Applications
+        model = MentorshipApplications
         fields = '__all__'
 
 
@@ -61,5 +61,5 @@ class FAQSerializer(ModelSerializer):
 
 class QuestionSerializer(ModelSerializer):
     class Meta:
-        model = Questions
+        model = MentorshipQuestions
         fields = '__all__'
