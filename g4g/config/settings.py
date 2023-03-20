@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'geoapi',
     'mentorship',
     'trainings',
+    'landing_page',
 ]
 
 MIDDLEWARE = [
@@ -193,6 +194,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
+    'SCHEMA_PATH_PREFIX': r'/api/*/*',
 }
 
 # email smtp backend settings
