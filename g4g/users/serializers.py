@@ -110,6 +110,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
+            'url',
             'email',
             'phone_number',
             'first_name',
@@ -119,6 +120,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'district',
             'village',
             'is_verified',
+            'is_staff',
+            'is_mentor',
         )
 
 
@@ -127,6 +130,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
+            'url',
             'email',
             'phone_number',
             'first_name',
@@ -138,4 +142,36 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             'is_verified',
         )
 
-        depth = 1
+        # depth = 1
+
+
+class ModeratorSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'profile_picture',
+            'first_name',
+            'last_name',
+            'region',
+            'password',
+            'is_staff',
+        )
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+
+        user = User.objects.create_user(**validated_data)
+
+        user.set_password(password)
+        user.is_staff = True
+
+        user.save()
+
+        return user
+
+
+class DummySerializer(serializers.Serializer):
+    pass

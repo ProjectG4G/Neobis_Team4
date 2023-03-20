@@ -14,11 +14,14 @@ from .views import (
     EmailVerificationConfirmView,
     EmailVerificationView,
     ChangePasswordView,
-    UserProfileView
+    UserProfileView,
+    UserRegisterStatisticView,
+    ModeratorViewSet,
 )
 
 router = SimpleRouter()
 router.register('users', UserProfileView, basename='user')
+router.register('moderators', ModeratorViewSet, basename='moderator')
 
 urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -31,4 +34,5 @@ urlpatterns = [
     path('verification/', EmailVerificationView.as_view(), name='verification'),
     path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm'),
     path('', include(router.urls)),
+    path('stats/new-users/', UserRegisterStatisticView.as_view(), name='stats-new-users'),
 ]
