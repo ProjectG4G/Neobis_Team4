@@ -5,11 +5,11 @@ from .permissions import IsAdminOrReadOnly
 
 from .serializers import (
     TrainingsSerializer,
-    CommentSerializer,
-    RatingSerializer,
-    FAQSerializer,
-    ApplicationsSerializer,
-    QuestionsSerializer,
+    TrainingCommentSerializer,
+    TrainingRatingSerializer,
+    TrainingFAQSerializer,
+    TrainingApplicationsSerializer,
+    TrainingQuestionsSerializer,
 )
 from .models import Trainings, Comment, Rating, FAQ, TrainingsQuestions, TrainingsApplications
 
@@ -24,31 +24,31 @@ class TrainingsViewSet(ModelViewSet):
 
 class QuestionsViewSet(ModelViewSet):
     queryset = TrainingsQuestions.objects.all()
-    serializer_class = QuestionsSerializer
+    serializer_class = TrainingQuestionsSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    serializer_class = TrainingCommentSerializer
     permission_classes = [IsAdminOrReadOnly]
 
 
 class FAQViewSet(viewsets.ModelViewSet):
-    serializer_class = FAQSerializer
+    serializer_class = TrainingFAQSerializer
     queryset = FAQ.objects.all()
     permission_classes = [IsAdminOrReadOnly]
 
 
 class RatingViewSet(viewsets.ModelViewSet):
-    serializer_class = RatingSerializer
+    serializer_class = TrainingRatingSerializer
     queryset = Rating.objects.all()
     permission_classes = [IsAdminOrReadOnly]
 
 
 class ApplicationsViewSet(ModelViewSet):
     queryset = TrainingsApplications.objects.all()
-    serializer_class = ApplicationsSerializer
+    serializer_class = TrainingApplicationsSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['district', 'name']
     permission_classes = [IsAdminOrReadOnly]
