@@ -149,6 +149,7 @@ class User(AbstractUser):
     village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True, blank=True)
 
     is_verified = models.BooleanField(default=False)
+    is_mentor = models.BooleanField(default=False, blank=True)
 
     def __str__(self) -> str:
         return "{}".format(self.username)
