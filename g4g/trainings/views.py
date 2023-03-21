@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, filters
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAdminUser
 
 from .permissions import IsAdminOrReadOnly
 
@@ -63,3 +64,13 @@ class ApplicationsViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['district', 'name']
     permission_classes = [IsAdminOrReadOnly]
+
+    def get_permissions(self):
+        if self.action in ['retrieve', 'update', 'destroy', 'list']:
+            permission_classes = [IsAdminOrReadOnly]
+        elif self.action == 'post':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+
+        return [permission() for permission in permission_classes]
