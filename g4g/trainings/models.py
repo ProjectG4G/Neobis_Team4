@@ -97,13 +97,11 @@ class TrainingsApplications(models.Model):
 
     phone_number = models.CharField(
         max_length=12,
-        unique=True,
     )
 
     email = models.EmailField(
         _("Email address"),
         max_length=255,
-        unique=True,
     )
 
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True)
@@ -122,11 +120,16 @@ class TrainingsApplications(models.Model):
 
     about_training = models.TextField()
 
-    # resume = models.FileField(upload_to='files/mentorship/')
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     is_accepted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (
+            'training',
+            'email',
+            'phone_number',
+        )
 
     def __str__(self):
         return self.training.title

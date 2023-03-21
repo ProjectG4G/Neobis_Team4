@@ -1,5 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import (
     MentorshipSerializer,
@@ -30,8 +32,15 @@ class ApplicationsViewSet(ModelViewSet):
     queryset = MentorshipApplications.objects.all()
     serializer_class = ApplicationsSerializer
     filter_backends = [DjangoFilterBackend]
-    filter_fields = ['district', 'name']
-    permission_classes = [IsAdminOrReadOnly]
+    filter_fields = ['title']
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminOrReadOnly]
+
+        return [permission() for permission in permission_classes]
 
 
 class FeedbackViewSet(ModelViewSet):
