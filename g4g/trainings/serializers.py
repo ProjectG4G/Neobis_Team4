@@ -57,7 +57,7 @@ class TrainingsSerializer(ModelSerializer):
         training = Trainings.objects.create(**validated_data)
 
         for image in uploaded_images:
-            TrainingsImage.objects.create(trainigs=training, image=image)
+            TrainingsImage.objects.create(training=training, image=image)
 
         return training
 
