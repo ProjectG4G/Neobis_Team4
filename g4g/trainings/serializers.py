@@ -38,6 +38,7 @@ class TrainingsSerializer(ModelSerializer):
     class Meta:
         model = Trainings
         fields = [
+            'id',
             'title',
             'header1',
             'header2',
