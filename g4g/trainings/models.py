@@ -48,7 +48,7 @@ class Rating(models.Model):
 
 
 class TrainingsImage(models.Model):
-    trainings = models.ForeignKey(Trainings, on_delete=models.CASCADE, related_name='images')
+    training = models.ForeignKey(Trainings, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='images/trainings/')
 
     def __str__(self):
