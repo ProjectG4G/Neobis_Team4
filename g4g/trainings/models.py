@@ -61,20 +61,27 @@ class TrainingsQuestions(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Тренинги')
 
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    first_name = models.TextField()
+    last_name = models.TextField()
 
-    phone_number = models.CharField(max_length=50)
-    email = models.CharField(max_length=50)
+    phone_number = models.TextField()
+    email = models.TextField()
 
-    region = models.CharField(max_length=250)
-    district = models.CharField(max_length=250)
-    village = models.CharField(max_length=250)
+    region = models.TextField()
+    district = models.TextField()
+    village = models.TextField()
 
-    goals = models.TextField()
+    can_attend = models.TextField()
+
+    interested1 = models.TextField()
+
+    why_you = models.TextField()
+
+    interested2 = models.TextField()
+
     expectations = models.TextField()
-    resume = models.CharField(max_length=250)
-    why_you = models.CharField(max_length=250)
+
+    about_training = models.TextField()
 
 
 class TrainingsApplications(models.Model):
@@ -90,16 +97,13 @@ class TrainingsApplications(models.Model):
 
     phone_number = models.CharField(
         max_length=12,
-        null=True,
         unique=True,
     )
 
     email = models.EmailField(
         _("Email address"),
         max_length=255,
-        null=True,
         unique=True,
-        blank=True,
     )
 
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True)
@@ -116,9 +120,9 @@ class TrainingsApplications(models.Model):
 
     expectations = models.TextField()
 
-    # resume = models.FileField(upload_to='files/mentorship/')
+    about_training = models.TextField()
 
-    about_training = models.CharField(max_length=255)
+    # resume = models.FileField(upload_to='files/mentorship/')
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
