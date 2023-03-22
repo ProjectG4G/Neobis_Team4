@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 
-from rest_framework import generics, status, filters
+from rest_framework import generics, status, filters, views
 
 from rest_framework.decorators import action
 
@@ -21,6 +21,9 @@ from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django_filters.rest_framework import DjangoFilterBackend
+
+from mentorship.models import MentorProfile
+from mentorship.serializers import MentorProfileSerializer
 
 from .models import User
 from .serializers import (
@@ -169,10 +172,6 @@ class UserProfileView(ModelViewSet):
             return UserProfileSerializer
         if self.action == 'create':
             return ModeratorSerializer
-        # if self.action == 'make_moderator':
-        #     return DummySerializer
-        # if self.action == 'make_mentor':
-        #     return DummySerializer
         return UserProfileUpdateSerializer
 
     @action(methods=['put'], detail=True)
@@ -203,11 +202,18 @@ class UserProfileView(ModelViewSet):
         user.save()
 
         if user.is_mentor:
+
+            mentor_profile = MentorProfile.objects.create(user=user)
+            mentor_profile.save()
+
             return Response({
                 'detail': 'New Mentor Added',
                 'user': user.id,
             })
         else:
+            mentor_profile = MentorProfile.objects.get(user=user)
+            mentor_profile.delete()
+
             return Response({
                 'detail': 'Mentor Deleted',
                 'user': user.id,
@@ -240,3 +246,14 @@ class ModeratorViewSet(ModelViewSet):
     serializer_class = ModeratorSerializer
 
     permission_classes = [IsAdminUser]
+
+
+class MentorProfileView(generics.RetrieveUpdateAPIView):
+    queryset = MentorProfile.objects.all()
+    serializer_class = MentorProfileSerializer
+
+    def get_object(self):
+        pk = self.kwargs['pk']
+        return MentorProfile.objects.get(user=pk)
+
+
