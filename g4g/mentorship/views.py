@@ -9,8 +9,17 @@ from .serializers import (
     FAQSerializer,
     FeedbackSerializer,
     QuestionSerializer,
+    MentorProfileSerializer,
 )
-from .models import Mentorship, FAQ, Feedback, MentorshipApplications, MentorshipQuestions
+from .models import (
+    Mentorship,
+    FAQ,
+    Feedback,
+    MentorshipApplications,
+    MentorshipQuestions,
+    MentorProfile,
+)
+
 from .permissions import IsAdminOrReadOnly
 
 
@@ -53,3 +62,11 @@ class FAQViewSet(ModelViewSet):
     queryset = FAQ.objects.all()
     serializer_class = FAQSerializer
     permission_classes = [IsAdminOrReadOnly]
+
+
+class MentorProfileViewSet(ModelViewSet):
+    queryset = MentorProfile.objects.all()
+    serializer_class = MentorProfileSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    allowed_methods = ['GET', 'PUT', 'PATCH', 'HEAD', 'OPTIONS']

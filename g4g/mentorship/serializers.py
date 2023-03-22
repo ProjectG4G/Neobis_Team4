@@ -18,6 +18,7 @@ from .models import (
     FAQ,
     MentorshipQuestions,
     MentorshipImage,
+    MentorProfile,
 )
 
 
@@ -121,3 +122,15 @@ class QuestionSerializer(ModelSerializer):
     class Meta:
         model = MentorshipQuestions
         fields = '__all__'
+
+
+class MentorProfileSerializer(ModelSerializer):
+    class Meta:
+        model = MentorProfile
+        fields = (
+            'id',
+            'user',
+            'image',
+            'description',
+        )
+        read_only_fields = ('user',)
