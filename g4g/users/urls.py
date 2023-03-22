@@ -16,7 +16,7 @@ from .views import (
     ChangePasswordView,
     UserProfileView,
     UserRegisterStatisticView,
-    ModeratorViewSet,
+    ModeratorViewSet, MentorProfileView,
 )
 
 router = SimpleRouter()
@@ -35,4 +35,5 @@ urlpatterns = [
     path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm'),
     path('', include(router.urls)),
     path('stats/new-users/', UserRegisterStatisticView.as_view(), name='stats-new-users'),
+    path('users/<int:pk>/mentor_profile/', MentorProfileView.as_view(), name='mentor_profile'),
 ]
