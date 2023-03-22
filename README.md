@@ -16,6 +16,8 @@ python manage.py migrate
 And after all the guides you need to create superuser 
 ```
 python manage.py createsuperuser
+
+python manage.py add_geodata
 ```
 
 and after creating, you just need to start the project 
