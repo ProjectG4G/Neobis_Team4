@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/mentorship/', include('mentorship.urls')),
     path('api/trainings/', include('trainings.urls')),
     path('geoapi/', include('geoapi.urls')),
+    path('landing_page/', include('landing_page.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
