@@ -7,6 +7,6 @@ router.register('landing_page', LandingPageViewSet, basename='landing_page')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('stats/', LandingPageStatisticView.as_view(), name='landing_page_stats')
+    path('landing_page/stats/', LandingPageStatisticView.as_view(), name='landing_page_stats')
 
 ]
