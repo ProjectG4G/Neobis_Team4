@@ -36,6 +36,7 @@ from .serializers import (
     UserProfileUpdateSerializer,
     ModeratorSerializer,
     DummySerializer,
+    UserProfileUpdateMiniSerializer,
 )
 
 from .verification import send_verification_email
@@ -154,25 +155,29 @@ class ChangePasswordView(APIView):
 
 class UserProfileView(ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserProfileUpdateSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = UserFilter
     search_fields = ('email', 'phone_number', 'first_name', 'last_name',)
 
-    def get_permissions(self):
-        if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
-            permission_classes = [IsProfileOwnerOrAdmin]
-        else:
-            permission_classes = [IsAdminUser]
-
-        return [permission() for permission in permission_classes]
+    permission_classes = (IsProfileOwnerOrAdmin,)
 
     def get_serializer_class(self):
         if self.action == 'list':
             return UserProfileSerializer
         if self.action == 'create':
             return ModeratorSerializer
-        return UserProfileUpdateSerializer
+        if self.request.user.is_staff:
+            return UserProfileUpdateSerializer
+        else:
+            return UserProfileUpdateMiniSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsProfileOwnerOrAdmin]
+
+        return [permission() for permission in permission_classes]
 
     @action(methods=['put'], detail=True)
     def make_moderator(self, request, pk=None):
@@ -236,13 +241,12 @@ class UserRegisterStatisticView(APIView):
             eleven=User.objects.filter(date_joined__month=11, date_joined__year=2023).count(),
             twelve=User.objects.filter(date_joined__month=12, date_joined__year=2023).count(),
         )
-        print(data)
         return Response(data)
 
 
 class ModeratorViewSet(ModelViewSet):
     queryset = User.objects.filter(is_staff=True)
-    
+
     serializer_class = ModeratorSerializer
 
     permission_classes = [IsAdminUser]
@@ -255,5 +259,3 @@ class MentorProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         pk = self.kwargs['pk']
         return MentorProfile.objects.get(user=pk)
-
-
