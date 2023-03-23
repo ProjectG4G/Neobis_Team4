@@ -15,12 +15,23 @@ class Command(BaseCommand):
     help = 'export geodata to json'
 
     @staticmethod
-    def get_region_list() -> list[str]:
-        region_names = Region.objects.values_list('name')
+    def get_region_list(data):
+        if data:
+            region_names = Region.objects.values_list('name', 'id')
 
-        regions = [name[0] for name in region_names]
+            regions = {}
 
-        return regions
+            for data in region_names:
+                regions[data[0]] = data[1]
+
+            return regions
+
+        else:
+            region_names = Region.objects.values_list('name')
+
+            regions = [name[0] for name in region_names]
+
+            return regions
 
     @staticmethod
     def get_district_list(region) -> dict[str:int]:
@@ -57,10 +68,11 @@ class Command(BaseCommand):
         return villages
 
     def handle(self, *args, **options):
-        region_list = self.get_region_list()
+        region_data = self.get_region_list(True)
+        region_list = self.get_region_list(False)
         district_list = self.get_district_list(None)
         data = {
-            'regions': region_list,
+            'regions': region_data,
             'districts': {
                 region_list[i]: self.get_district_list(region_list[i]) for i in range(7)
             },
