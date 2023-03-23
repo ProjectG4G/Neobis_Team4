@@ -34,6 +34,6 @@ urlpatterns = [
     path('verification/', EmailVerificationView.as_view(), name='verification'),
     path('verification/confirm/', EmailVerificationConfirmView.as_view(), name='verification_confirm'),
     path('', include(router.urls)),
-    path('stats/new-users/', UserRegisterStatisticView.as_view(), name='stats-new-users'),
+    path('stats/new-users/<int:year>', UserRegisterStatisticView.as_view(), name='stats-new-users'),
     path('users/<int:pk>/mentor_profile/', MentorProfileView.as_view(), name='mentor_profile'),
 ]

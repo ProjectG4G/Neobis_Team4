@@ -227,21 +227,16 @@ class UserProfileView(ModelViewSet):
 
 class UserRegisterStatisticView(APIView):
     def get(self, request, *args, **kwargs):
-        data = dict(
-            one=User.objects.filter(date_joined__month=1, date_joined__year=2023).count(),
-            two=User.objects.filter(date_joined__month=2, date_joined__year=2023).count(),
-            three=User.objects.filter(date_joined__month=3, date_joined__year=2023).count(),
-            four=User.objects.filter(date_joined__month=4, date_joined__year=2023).count(),
-            five=User.objects.filter(date_joined__month=5, date_joined__year=2023).count(),
-            six=User.objects.filter(date_joined__month=6, date_joined__year=2023).count(),
-            seven=User.objects.filter(date_joined__month=7, date_joined__year=2023).count(),
-            eight=User.objects.filter(date_joined__month=8, date_joined__year=2023).count(),
-            nine=User.objects.filter(date_joined__month=9, date_joined__year=2023).count(),
-            ten=User.objects.filter(date_joined__month=10, date_joined__year=2023).count(),
-            eleven=User.objects.filter(date_joined__month=11, date_joined__year=2023).count(),
-            twelve=User.objects.filter(date_joined__month=12, date_joined__year=2023).count(),
-        )
+        year = kwargs['year']
+        data = {
+            month: User.objects.filter(date_joined__month=month, date_joined__year=year).count() for month in
+            range(1, 13)
+        }
         return Response(data)
+
+
+# class UserByRegionStatisticView(APIView):
+#
 
 
 class ModeratorViewSet(ModelViewSet):
