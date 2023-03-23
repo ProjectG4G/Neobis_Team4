@@ -152,4 +152,4 @@ class User(AbstractUser):
     is_mentor = models.BooleanField(default=False, blank=True)
 
     def __str__(self) -> str:
-        return "{}".format(self.username)
+        return "{} - {}".format(self.email, self.phone_number)
