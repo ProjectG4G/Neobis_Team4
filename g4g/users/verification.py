@@ -41,5 +41,7 @@ def send_verification_email(user, verification_url, *args, **kwargs):
         # to:
         [user.email]
     )
-    msg.attach_alternative(email_html_message, "text/html")
+
+    # msg.attach_alternative(email_html_message, "text/html")
+    
     msg.send()
