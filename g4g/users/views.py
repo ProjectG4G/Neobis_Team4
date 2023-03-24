@@ -28,7 +28,7 @@ from mentorship.serializers import MentorProfileSerializer
 from .models import User
 from .serializers import (
     RegisterSerializer,
-    LoginSerializer,
+    LoginPhoneSerializer,
     EmailVerificationSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
@@ -37,6 +37,7 @@ from .serializers import (
     ModeratorSerializer,
     DummySerializer,
     UserProfileUpdateMiniSerializer,
+    LoginEmailSerializer,
 )
 
 from .verification import send_verification_email
@@ -61,8 +62,8 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+class LoginPhoneView(generics.GenericAPIView):
+    serializer_class = LoginPhoneSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -70,6 +71,33 @@ class LoginView(generics.GenericAPIView):
         password = request.data["password"]
         user = User.objects.filter(phone_number=phone_number).first()
 
+        if user is None:
+            raise AuthenticationFailed("User not found!")
+
+        if not user.check_password(password):
+            raise AuthenticationFailed("Incorrect password!")
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
+
+
+class LoginEmailView(generics.GenericAPIView):
+    serializer_class = LoginEmailSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data["email"]
+        password = request.data["password"]
+        user = User.objects.filter(email=email).first()
+
+        # if not user.is_verified:
+        #     raise AuthenticationFailed("User is not verified!")
         if user is None:
             raise AuthenticationFailed("User not found!")
 
