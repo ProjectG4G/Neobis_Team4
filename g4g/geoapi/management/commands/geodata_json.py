@@ -27,9 +27,9 @@ class Command(BaseCommand):
             return regions
 
         else:
-            region_names = Region.objects.values_list('name')
+            region_names = Region.objects.values_list('id', 'name')
 
-            regions = [name[0] for name in region_names]
+            regions = [(name[0], name[1]) for name in region_names]
 
             return regions
 
@@ -74,7 +74,7 @@ class Command(BaseCommand):
         data = {
             'regions': region_data,
             'districts': {
-                region_list[i]: self.get_district_list(region_list[i]) for i in range(7)
+                int(region_list[i][0]): self.get_district_list(region_list[i][1]) for i in range(7)
             },
             'villages': {
                 district: self.get_villages_list(district) for district in district_list
