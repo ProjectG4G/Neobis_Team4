@@ -221,7 +221,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
 
-class Comment(models.Model):
+class Reply(models.Model):
     content = models.TextField(
         verbose_name=_('Текст'),
         )
