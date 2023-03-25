@@ -1,6 +1,6 @@
 from rest_framework import generics
 from django.shortcuts import redirect
-from .models import ProductCategory, Stock, Order, Cart, CartItem, Product, Feedback
+from .models import ProductCategory, Stock, Order, Cart, CartItem, Product, Reply
 from .serializers import (
     ProductCategorySerializer,
     StockSerializer,
@@ -8,7 +8,7 @@ from .serializers import (
     CartSerializer,
     CartItemSerializer,
     ProductSerializer,
-    FeedbackSerializer
+    CommentSerializer
 )
 
 
@@ -80,6 +80,6 @@ class CartItemDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CartItemSerializer
 
 
-class FeedbackList(generics.ListCreateAPIView):
-    queryset = Feedback.objects.all()
-    serializer_class = FeedbackSerializer
+class ReplyList(generics.ListCreateAPIView):
+    queryset = Reply.objects.all()
+    serializer_class = CommentSerializer
