@@ -48,6 +48,14 @@ from .permissions import IsProfileOwnerOrAdmin
 from .filters import UserFilter
 
 
+def send_verification(request, user):
+    token = default_token_generator.make_token(user)
+    verification_url = request.build_absolute_uri(
+        reverse('verification_confirm')
+    ) + f'?email={user.email}&token={token}'
+    send_verification_email(user, verification_url)
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -57,8 +65,15 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response({"detail": "User successfully created."}, status=status.HTTP_201_CREATED)
+            user = serializer.save()
+
+            if user.email and not user.is_verified:
+                send_verification(request, user)
+                return Response({"detail": "User successfully created.", 'verification': 'Verification email sent'},
+                                status=status.HTTP_201_CREATED)
+
+            return Response({"detail": "User successfully created."},
+                            status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -71,9 +86,6 @@ class LoginPhoneView(generics.GenericAPIView):
         phone_number = request.data["phone_number"]
         password = request.data["password"]
         user = User.objects.filter(phone_number=phone_number).first()
-
-        if not user.is_verified:
-            raise AuthenticationFailed("User is not verified!")
 
         if user is None:
             raise AuthenticationFailed("User not found!")
@@ -127,14 +139,9 @@ class EmailVerificationView(generics.GenericAPIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             user = get_user_model().objects.get(email=email)
+
             if not user.is_verified:
-                token = default_token_generator.make_token(user)
-                verification_url = request.build_absolute_uri(
-                    reverse('verification_confirm')
-                ) + f'?email={email}&token={token}'
-
-                send_verification_email(user, verification_url)
-
+                send_verification(request, user)
                 return Response({'detail': 'Verification email sent'})
             else:
                 return Response({'detail': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
