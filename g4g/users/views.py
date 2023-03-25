@@ -99,6 +99,10 @@ class LoginPhoneView(generics.GenericAPIView):
 
         refresh = RefreshToken.for_user(user)
 
+        refresh['is_superuser'] = user.is_superuser
+        refresh['is_staff'] = user.is_staff
+        refresh['is_mentor'] = user.is_mentor
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -125,6 +129,10 @@ class LoginEmailView(generics.GenericAPIView):
             raise AuthenticationFailed("Incorrect password!")
 
         refresh = RefreshToken.for_user(user)
+
+        refresh['is_superuser'] = user.is_superuser
+        refresh['is_staff'] = user.is_staff
+        refresh['is_mentor'] = user.is_mentor
 
         return Response(
             {
