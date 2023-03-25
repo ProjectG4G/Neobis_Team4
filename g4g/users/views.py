@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
+from django.shortcuts import redirect
 
 from rest_framework import generics, status, filters, views
 
@@ -71,6 +72,9 @@ class LoginPhoneView(generics.GenericAPIView):
         password = request.data["password"]
         user = User.objects.filter(phone_number=phone_number).first()
 
+        if not user.is_verified:
+            raise AuthenticationFailed("User is not verified!")
+
         if user is None:
             raise AuthenticationFailed("User not found!")
 
@@ -96,8 +100,8 @@ class LoginEmailView(generics.GenericAPIView):
         password = request.data["password"]
         user = User.objects.filter(email=email).first()
 
-        # if not user.is_verified:
-        #     raise AuthenticationFailed("User is not verified!")
+        if not user.is_verified:
+            raise AuthenticationFailed("User is not verified!")
         if user is None:
             raise AuthenticationFailed("User not found!")
 
@@ -117,9 +121,6 @@ class LoginEmailView(generics.GenericAPIView):
 class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
     queryset = User.objects.all()
-
-    # TODO setup permissions
-    # permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -152,7 +153,8 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
             if not user.is_verified and default_token_generator.check_token(user, token):
                 user.is_verified = True
                 user.save()
-                return Response({'detail': 'Email verified'})
+                # TODO setup valid url
+                return redirect(to='http://localhost:3000/login/')
             else:
                 return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
         except get_user_model().DoesNotExist:
