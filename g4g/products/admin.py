@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Product, ProductCategory, Stock, Order, Cart, CartItem, Feedback
+from .models import Product, ProductCategory, Stock, Order, Cart, CartItem, Reply
 
 
 class CartItemAdmin(admin.ModelAdmin):
@@ -82,4 +82,4 @@ admin.site.register(Stock)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(CartItem, CartItemAdmin)
-admin.site.register(Feedback)
+admin.site.register(Reply)
