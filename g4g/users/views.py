@@ -17,6 +17,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -291,3 +292,17 @@ class MentorProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         pk = self.kwargs['pk']
         return MentorProfile.objects.get(user=pk)
+
+
+class UserProfileRetrieveView(RetrieveUpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserProfileUpdateMiniSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
