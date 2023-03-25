@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from .models import (
- Product,
- ProductCategory,
- Stock,
- Order,
- Cart,
- CartItem,
- Feedback,
+    Product,
+    ProductCategory,
+    Stock,
+    Order,
+    Cart,
+    CartItem,
+    Reply,
 )
 
 
@@ -72,10 +72,10 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_date']
 
 
-class FeedbackSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     product = ProductSerializer(read_only=True)
 
     class Meta:
-        model = Feedback
+        model = Reply
         fields = ['id', 'user', 'product', 'created_date', 'content']
