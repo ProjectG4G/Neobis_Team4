@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
+from django.shortcuts import redirect
 
 from rest_framework import generics, status, filters, views
 
@@ -28,7 +29,7 @@ from mentorship.serializers import MentorProfileSerializer
 from .models import User
 from .serializers import (
     RegisterSerializer,
-    LoginSerializer,
+    LoginPhoneSerializer,
     EmailVerificationSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
@@ -37,6 +38,7 @@ from .serializers import (
     ModeratorSerializer,
     DummySerializer,
     UserProfileUpdateMiniSerializer,
+    LoginEmailSerializer,
 )
 
 from .verification import send_verification_email
@@ -61,8 +63,8 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+class LoginPhoneView(generics.GenericAPIView):
+    serializer_class = LoginPhoneSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -70,6 +72,36 @@ class LoginView(generics.GenericAPIView):
         password = request.data["password"]
         user = User.objects.filter(phone_number=phone_number).first()
 
+        if not user.is_verified:
+            raise AuthenticationFailed("User is not verified!")
+
+        if user is None:
+            raise AuthenticationFailed("User not found!")
+
+        if not user.check_password(password):
+            raise AuthenticationFailed("Incorrect password!")
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
+
+
+class LoginEmailView(generics.GenericAPIView):
+    serializer_class = LoginEmailSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data["email"]
+        password = request.data["password"]
+        user = User.objects.filter(email=email).first()
+
+        if not user.is_verified:
+            raise AuthenticationFailed("User is not verified!")
         if user is None:
             raise AuthenticationFailed("User not found!")
 
@@ -89,9 +121,6 @@ class LoginView(generics.GenericAPIView):
 class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
     queryset = User.objects.all()
-
-    # TODO setup permissions
-    # permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -124,7 +153,8 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
             if not user.is_verified and default_token_generator.check_token(user, token):
                 user.is_verified = True
                 user.save()
-                return Response({'detail': 'Email verified'})
+                # TODO setup valid url
+                return redirect(to='http://localhost:3000/login/')
             else:
                 return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
         except get_user_model().DoesNotExist:

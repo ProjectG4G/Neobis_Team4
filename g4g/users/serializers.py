@@ -79,10 +79,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class LoginPhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'password', ]
+
+
+class LoginEmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'password', ]
 
 
 class EmailVerificationSerializer(serializers.Serializer):
