@@ -47,6 +47,8 @@ from .permissions import IsProfileOwnerOrAdmin
 
 from .filters import UserFilter
 
+from decouple import config
+
 
 def send_verification(request, user):
     token = default_token_generator.make_token(user)
@@ -67,10 +69,11 @@ class RegisterView(generics.CreateAPIView):
         if serializer.is_valid():
             user = serializer.save()
 
-            if user.email and not user.is_verified:
-                send_verification(request, user)
-                return Response({"detail": "User successfully created.", 'verification': 'Verification email sent'},
-                                status=status.HTTP_201_CREATED)
+            if config("VERIFICATION", default=False, cast=bool):
+                if user.email and not user.is_verified:
+                    send_verification(request, user)
+                    return Response({"detail": "User successfully created.", 'verification': 'Verification email sent'},
+                                    status=status.HTTP_201_CREATED)
 
             return Response({"detail": "User successfully created."},
                             status=status.HTTP_201_CREATED)
@@ -111,9 +114,9 @@ class LoginEmailView(generics.GenericAPIView):
         email = request.data["email"]
         password = request.data["password"]
         user = User.objects.filter(email=email).first()
-
-        if not user.is_verified:
-            raise AuthenticationFailed("User is not verified!")
+        if config("VERIFICATION", default=False, cast=bool):
+            if not user.is_verified:
+                raise AuthenticationFailed("User is not verified!")
         if user is None:
             raise AuthenticationFailed("User not found!")
 
