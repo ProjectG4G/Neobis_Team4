@@ -29,8 +29,8 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     # send an e-mail to the user
 
     user = reset_password_token.user
-    reset_url = "{}?token={}".format('http://localhost:3000/reset-password/confirm/',
-                                     reset_password_token.key),
+    reset_url = "{}/{}".format('http://localhost:3000/auth/reset-password',
+                               reset_password_token.key),
 
     # render email text
 
@@ -38,7 +38,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         # title:
         "Password Reset for Girls for Girls",
         # message:
-        f"Hi {user.last_name}!\nReset you password with following link:\n{reset_url}",
+        f"Hi {user.first_name}!\nReset you password with following link:\n{reset_url}",
         # from:
         settings.EMAIL_HOST,
         # to:
