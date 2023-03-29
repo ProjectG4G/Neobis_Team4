@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'drf_spectacular',
     'django_filters',
-    'django_api_admin',
     'corsheaders',
 
     # local app
@@ -257,7 +256,7 @@ CLOUDINARY_STORAGE = {
 
 # CORS headers configuration
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = config("CORS_ALL", cast=bool, default=False)
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000",
