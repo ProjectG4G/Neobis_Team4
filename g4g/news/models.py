@@ -34,7 +34,7 @@ class Article(TranslatableModel):
         return self.title
 
 
-class ArticlesImage(models.Model):
+class ArticleImage(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to="articles")
 
