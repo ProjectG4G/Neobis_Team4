@@ -1,7 +1,9 @@
 from rest_framework import serializers
 
-from .models import Tag, Article, ArticlesImage
-from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
+from .models import Tag, Article, ArticleImage
+
+
+# from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -10,10 +12,15 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class ArticlesImageSerializers(TranslatableModelSerializer):
+class ArticleImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArticlesImage
-        fields = "__all__"
+        model = ArticleImage
+        fields = [
+            'url',
+            'id',
+            'image',
+            'article',
+        ]
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -24,20 +31,20 @@ class ArticleSerializer(serializers.ModelSerializer):
         required=False,
     )
 
-    images = ArticlesImageSerializers(many=True, read_only=True)
+    images = ArticleImageSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
         required=False
     )
 
-    translations = TranslatedFieldsField(shared_model=Article)
+    title = serializers.SerializerMethodField('get_title')
+    content = serializers.SerializerMethodField('get_title')
 
     class Meta:
         model = Article
         fields = [
             'id',
-            'translations',
             'section',
             'images',
             'uploaded_images',
@@ -50,30 +57,18 @@ class ArticleSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images")
         added_tags = validated_data.pop("added_tags")
-        translations = validated_data.pop("translations")
-
-        ky = translations['ky']
-        ru = translations['ru']
-
-        article = Article.objects.create(**validated_data)
-        article.set_current_language('ky')
-
-        article.title = ky['title']
-        article.content = ky['content']
-
-        article.set_current_language('ru')
-        article.title = ru['title']
-        article.content = ru['content']
-
-        article.save()
 
         for image in uploaded_images:
-            ArticlesImage.objects.create(article=article, image=image)
+            ArticleImage.objects.create(article=article, image=image)
 
         for tag in added_tags:
             article.tags.add(Tag.objects.get(id=tag))
 
         return article
+
+
+class ArticleContentSerializer(serializers.ModelSerializer):
+    pass
 
 
 class AddTagSerializer(serializers.Serializer):
@@ -94,18 +89,3 @@ class ArticleAddTagsSerializer(serializers.Serializer):
         for tag in added_tags:
             print(tag)
             instance.tags.add(Tag.objects.get(id=tag))
-
-
-class ArticleContentSerializer(serializers.ModelSerializer):
-    title = serializers.SerializerMethodField(read_only=True)
-    content = serializers.SerializerMethodField(read_only=True)
-
-    edit_title = serializers.CharField(max_length=255, write_only=True)
-    edit_content = serializers.TextField(write_only=True)
-
-    class Meta:
-        model = Article
-        fields = ['get_title', 'get_context']
-
-    def update(self, instance, validated_data):
-        pass
