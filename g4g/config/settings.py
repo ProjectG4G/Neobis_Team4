@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_filters',
     'corsheaders',
+    'parler',
 
     # local app
     'users',
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
     'mentorship',
     'trainings',
     'landing_page',
+    'news',
 ]
 
 MIDDLEWARE = [
@@ -228,7 +230,7 @@ LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale/')
 ]
 
-PARLER_DEFAULT_LANGUAGE_CODE = 'ky'
+PARLER_DEFAULT_LANGUAGE_CODE = 'kg'
 
 PARLER_LANGUAGES = {
     None: (
@@ -236,14 +238,14 @@ PARLER_LANGUAGES = {
             "code": "en",
         },  # English
         {
-            "code": "ky",
+            "code": "kg",
         },  # Kyrgyz
         {
             "code": "ru",
         },  # Russian
     ),
     "default": {
-        "fallbacks": ["ky"],
+        "fallbacks": ["kg"],
         "hide_untranslated": False,
     },
 }
