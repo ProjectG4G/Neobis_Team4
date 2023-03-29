@@ -13,8 +13,6 @@ urlpatterns = [
     path('geoapi/', include('geoapi.urls')),
     path('api/', include('landing_page.urls')),
 
-    path('', include('rest_framework.urls')),
-
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     # Optional UI:
     path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
