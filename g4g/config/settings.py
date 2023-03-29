@@ -46,8 +46,8 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'drf_spectacular',
     'django_filters',
-    'django_api_admin',
     'corsheaders',
+
     # local app
     'users',
     'geoapi',
@@ -118,7 +118,6 @@ else:
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
@@ -229,6 +228,26 @@ LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'locale/')
 ]
 
+PARLER_DEFAULT_LANGUAGE_CODE = 'ky'
+
+PARLER_LANGUAGES = {
+    None: (
+        {
+            "code": "en",
+        },  # English
+        {
+            "code": "ky",
+        },  # Kyrgyz
+        {
+            "code": "ru",
+        },  # Russian
+    ),
+    "default": {
+        "fallbacks": ["ky"],
+        "hide_untranslated": False,
+    },
+}
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUD_NAME'),
     'API_KEY': config('API_KEY'),
@@ -237,7 +256,7 @@ CLOUDINARY_STORAGE = {
 
 # CORS headers configuration
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = config("CORS_ALL", cast=bool, default=False)
 
 CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000",
