@@ -6,9 +6,6 @@ from geoapi.models import Region, District
 from geoapi.utils import extract
 
 
-# from geoapi.serializers import RegionSerializer
-
-
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         allow_blank=True,
@@ -82,10 +79,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class LoginSerializer(serializers.ModelSerializer):
+class LoginPhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['phone_number', 'password', ]
+
+
+class LoginEmailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'password', ]
 
 
 class EmailVerificationSerializer(serializers.Serializer):
@@ -130,7 +133,6 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'id',
-            'url',
             'email',
             'phone_number',
             'first_name',
@@ -139,10 +141,75 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             'region',
             'district',
             'village',
+            'is_staff',
             'is_verified',
+            'is_active',
         )
 
-        # depth = 1
+        read_only_fields = ('is_verified',)
+
+        def validate(self, attrs):
+            region = attrs['region']
+            district = attrs['district']
+            village = attrs['village']
+
+            if not Region.objects.filter(id=region.id).exists():
+                raise serializers.ValidationError({'detail': 'Given region {} does not exist!'.format(region)})
+
+            if not District.objects.filter(id=district.id).exists():
+                raise serializers.ValidationError({'detail': 'Given district/city {} does not exist!'.format(district)})
+
+            if village and not Village.objects.filter(id=village.id).exists():
+                raise serializers.ValidationError({'detail': 'Given village {} does not exist!'.format(village)})
+
+            if district.region != region:
+                raise serializers.ValidationError(
+                    {'detail': 'Given district or city {} doesn\'t belong to region {}'.format(district, region)})
+
+            if village and village.district != district:
+                raise serializers.ValidationError(
+                    {'detail': 'Given village {} doesn\'t belong to district {}'.format(village, district)})
+
+            return attrs
+
+
+class UserProfileUpdateMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'profile_picture',
+            'region',
+            'district',
+            'village',
+        )
+
+    def validate(self, attrs):
+        region = attrs['region']
+        district = attrs['district']
+        village = attrs['village']
+
+        if not Region.objects.filter(id=region.id).exists():
+            raise serializers.ValidationError({'detail': 'Given region {} does not exist!'.format(region)})
+
+        if not District.objects.filter(id=district.id).exists():
+            raise serializers.ValidationError({'detail': 'Given district/city {} does not exist!'.format(district)})
+
+        if village and not Village.objects.filter(id=village.id).exists():
+            raise serializers.ValidationError({'detail': 'Given village {} does not exist!'.format(village)})
+
+        if district.region != region:
+            raise serializers.ValidationError(
+                {'detail': 'Given district or city {} doesn\'t belong to region {}'.format(district, region)})
+
+        if village and village.district != district:
+            raise serializers.ValidationError(
+                {'detail': 'Given village {} doesn\'t belong to district {}'.format(village, district)})
+
+        return attrs
 
 
 class ModeratorSerializer(serializers.ModelSerializer):
@@ -167,6 +234,7 @@ class ModeratorSerializer(serializers.ModelSerializer):
 
         user.set_password(password)
         user.is_staff = True
+        user.is_verified = True
 
         user.save()
 

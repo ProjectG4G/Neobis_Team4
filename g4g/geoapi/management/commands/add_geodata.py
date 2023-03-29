@@ -22,7 +22,7 @@ class Command(BaseCommand):
     @staticmethod
     def add_regions():
         csv_path = os.path.join(os.path.dirname(__file__), 'region_district.csv')
-        with open(csv_path) as file:
+        with open(csv_path, encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
 
             for row in csv_reader:
@@ -46,7 +46,7 @@ class Command(BaseCommand):
     @staticmethod
     def add_districts():
         csv_path = os.path.join(os.path.dirname(__file__), 'district_village.csv')
-        with open(csv_path) as file:
+        with open(csv_path, encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)
 
             for row in csv_reader:

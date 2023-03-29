@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
+from django.shortcuts import redirect
 
 from rest_framework import generics, status, filters, views
 
@@ -16,6 +17,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import RetrieveUpdateAPIView
 
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -28,7 +30,7 @@ from mentorship.serializers import MentorProfileSerializer
 from .models import User
 from .serializers import (
     RegisterSerializer,
-    LoginSerializer,
+    LoginPhoneSerializer,
     EmailVerificationSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
@@ -36,6 +38,8 @@ from .serializers import (
     UserProfileUpdateSerializer,
     ModeratorSerializer,
     DummySerializer,
+    UserProfileUpdateMiniSerializer,
+    LoginEmailSerializer,
 )
 
 from .verification import send_verification_email
@@ -43,6 +47,16 @@ from .verification import send_verification_email
 from .permissions import IsProfileOwnerOrAdmin
 
 from .filters import UserFilter
+
+from decouple import config
+
+
+def send_verification(request, user):
+    token = default_token_generator.make_token(user)
+    verification_url = request.build_absolute_uri(
+        reverse('verification_confirm')
+    ) + f'?email={user.email}&token={token}'
+    send_verification_email(user, verification_url)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -54,14 +68,22 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response({"detail": "User successfully created."}, status=status.HTTP_201_CREATED)
+            user = serializer.save()
+
+            if config("VERIFICATION", default=False, cast=bool):
+                if user.email and not user.is_verified:
+                    send_verification(request, user)
+                    return Response({"detail": "User successfully created.", 'verification': 'Verification email sent'},
+                                    status=status.HTTP_201_CREATED)
+
+            return Response({"detail": "User successfully created."},
+                            status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(generics.GenericAPIView):
-    serializer_class = LoginSerializer
+class LoginPhoneView(generics.GenericAPIView):
+    serializer_class = LoginPhoneSerializer
     permission_classes = (AllowAny,)
 
     def post(self, request):
@@ -77,6 +99,41 @@ class LoginView(generics.GenericAPIView):
 
         refresh = RefreshToken.for_user(user)
 
+        refresh['is_superuser'] = user.is_superuser
+        refresh['is_staff'] = user.is_staff
+        refresh['is_mentor'] = user.is_mentor
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            }
+        )
+
+
+class LoginEmailView(generics.GenericAPIView):
+    serializer_class = LoginEmailSerializer
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
+        email = request.data["email"]
+        password = request.data["password"]
+        user = User.objects.filter(email=email).first()
+        if config("VERIFICATION", default=False, cast=bool):
+            if not user.is_verified:
+                raise AuthenticationFailed("User is not verified!")
+        if user is None:
+            raise AuthenticationFailed("User not found!")
+
+        if not user.check_password(password):
+            raise AuthenticationFailed("Incorrect password!")
+
+        refresh = RefreshToken.for_user(user)
+
+        refresh['is_superuser'] = user.is_superuser
+        refresh['is_staff'] = user.is_staff
+        refresh['is_mentor'] = user.is_mentor
+
         return Response(
             {
                 "refresh": str(refresh),
@@ -89,22 +146,14 @@ class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
     queryset = User.objects.all()
 
-    # TODO setup permissions
-    # permission_classes = (IsAuthenticated,)
-
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             user = get_user_model().objects.get(email=email)
+
             if not user.is_verified:
-                token = default_token_generator.make_token(user)
-                verification_url = request.build_absolute_uri(
-                    reverse('verification_confirm')
-                ) + f'?email={email}&token={token}'
-
-                send_verification_email(user, verification_url)
-
+                send_verification(request, user)
                 return Response({'detail': 'Verification email sent'})
             else:
                 return Response({'detail': 'Email already verified'}, status=status.HTTP_400_BAD_REQUEST)
@@ -123,7 +172,8 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
             if not user.is_verified and default_token_generator.check_token(user, token):
                 user.is_verified = True
                 user.save()
-                return Response({'detail': 'Email verified'})
+                # TODO setup valid url
+                return redirect(to='http://localhost:3000/login/')
             else:
                 return Response({'detail': 'Invalid email or token'}, status=status.HTTP_400_BAD_REQUEST)
         except get_user_model().DoesNotExist:
@@ -154,25 +204,29 @@ class ChangePasswordView(APIView):
 
 class UserProfileView(ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserProfileUpdateSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filterset_class = UserFilter
     search_fields = ('email', 'phone_number', 'first_name', 'last_name',)
 
-    def get_permissions(self):
-        if self.action in ['retrieve', 'update', 'destroy', 'partial_update']:
-            permission_classes = [IsProfileOwnerOrAdmin]
-        else:
-            permission_classes = [IsAdminUser]
-
-        return [permission() for permission in permission_classes]
+    permission_classes = (IsProfileOwnerOrAdmin,)
 
     def get_serializer_class(self):
         if self.action == 'list':
             return UserProfileSerializer
         if self.action == 'create':
             return ModeratorSerializer
-        return UserProfileUpdateSerializer
+        if self.request.user.is_staff:
+            return UserProfileUpdateSerializer
+        else:
+            return UserProfileUpdateMiniSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsProfileOwnerOrAdmin]
+
+        return [permission() for permission in permission_classes]
 
     @action(methods=['put'], detail=True)
     def make_moderator(self, request, pk=None):
@@ -222,27 +276,21 @@ class UserProfileView(ModelViewSet):
 
 class UserRegisterStatisticView(APIView):
     def get(self, request, *args, **kwargs):
-        data = dict(
-            one=User.objects.filter(date_joined__month=1, date_joined__year=2023).count(),
-            two=User.objects.filter(date_joined__month=2, date_joined__year=2023).count(),
-            three=User.objects.filter(date_joined__month=3, date_joined__year=2023).count(),
-            four=User.objects.filter(date_joined__month=4, date_joined__year=2023).count(),
-            five=User.objects.filter(date_joined__month=5, date_joined__year=2023).count(),
-            six=User.objects.filter(date_joined__month=6, date_joined__year=2023).count(),
-            seven=User.objects.filter(date_joined__month=7, date_joined__year=2023).count(),
-            eight=User.objects.filter(date_joined__month=8, date_joined__year=2023).count(),
-            nine=User.objects.filter(date_joined__month=9, date_joined__year=2023).count(),
-            ten=User.objects.filter(date_joined__month=10, date_joined__year=2023).count(),
-            eleven=User.objects.filter(date_joined__month=11, date_joined__year=2023).count(),
-            twelve=User.objects.filter(date_joined__month=12, date_joined__year=2023).count(),
-        )
-        print(data)
+        year = kwargs['year']
+        data = {
+            month: User.objects.filter(date_joined__month=month, date_joined__year=year).count() for month in
+            range(1, 13)
+        }
         return Response(data)
+
+
+# class UserByRegionStatisticView(APIView):
+#
 
 
 class ModeratorViewSet(ModelViewSet):
     queryset = User.objects.filter(is_staff=True)
-    
+
     serializer_class = ModeratorSerializer
 
     permission_classes = [IsAdminUser]
@@ -257,3 +305,15 @@ class MentorProfileView(generics.RetrieveUpdateAPIView):
         return MentorProfile.objects.get(user=pk)
 
 
+class UserProfileRetrieveView(RetrieveUpdateAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserProfileUpdateMiniSerializer
+
+    def get_object(self):
+        user = self.request.user
+        return user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

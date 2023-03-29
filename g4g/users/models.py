@@ -25,45 +25,26 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     :param kwargs:
     :return:
     """
+
     # send an e-mail to the user
-    context = {
-        'site_name': 'Girls for Girls',
-        'current_user': reset_password_token.user,
-        'username': reset_password_token.user.username,
-        'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(
-            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-            reset_password_token.key),
 
-        # TODO insert real contacts
-        'company_address': _('Bishkek, Aaly Tokombaeva, 9/1a'),
-        'company_phone_number': _('+996 (505) 054550'),
-        'company_email': 'girlsforgirls@gmail.com',
-
-        'forgot_your_password': _('Forgot your password?'),
-        'we_received': _('We received a request to reset your password.'),
-        'if_you_did_not': _('If you did not make this request, simply ignore this email.'),
-        'if_you_did': _('If you did make this request just click the button below:'),
-        'reset_password': _('RESET MY PASSWORD'),
-        'if_you_did_not1': _('If you did not request to change your brand password,'),
-        'do_not_have_to': _('you do not have to do anything. So that is easy.'),
-    }
+    user = reset_password_token.user
+    reset_url = "{}/{}".format('http://localhost:3000/auth/reset-password',
+                               reset_password_token.key),
 
     # render email text
-    email_html_message = render_to_string('email/user_reset_password.html', context)
-    email_plaintext_message = render_to_string('email/user_reset_password.txt', context)
 
     msg = EmailMultiAlternatives(
         # title:
-        _("Password Reset for Girls for Girls"),
+        "Password Reset for Girls for Girls",
         # message:
-        email_plaintext_message,
+        f"Hi {user.first_name}!\nReset you password with following link:\n{reset_url}",
         # from:
         settings.EMAIL_HOST,
         # to:
         [reset_password_token.user.email]
     )
-    msg.attach_alternative(email_html_message, "text/html")
+
     msg.send()
 
 
@@ -99,6 +80,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("is_verified", True)
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_stuff=True.")
@@ -152,4 +134,4 @@ class User(AbstractUser):
     is_mentor = models.BooleanField(default=False, blank=True)
 
     def __str__(self) -> str:
-        return "{}".format(self.username)
+        return "{} - {}".format(self.email, self.phone_number)
