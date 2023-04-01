@@ -35,3 +35,27 @@ class Question(models.Model):
     required = models.BooleanField(default=False)
 
     form = models.ForeignKey(Form, on_delete=models.CASCADE)
+
+
+class Application(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    edited = models.DateTimeField(auto_now=True)
+
+    STATUS = (
+        (1, "Filling"),
+        (2, "Submitted"),
+        (3, "Declined"),
+        (4, "Accepted"),
+    )
+
+    status = models.IntegerField(choices=STATUS, default=1)
+
+
+class Response(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+
+    content = models.JSONField(
+        blank=True,
+        null=True,
+    )
