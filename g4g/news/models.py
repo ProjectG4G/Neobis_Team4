@@ -31,7 +31,7 @@ class Article(TranslatableModel):
     tags = models.ManyToManyField(Tag, blank=True)
 
     def __str__(self):
-        return self.title
+        return f"{self.id} - {self.title} - {self.published}"
 
 
 class ArticleImage(models.Model):
