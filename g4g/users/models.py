@@ -27,31 +27,34 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     """
     # send an e-mail to the user
     context = {
-        'site_name': 'Girls for Girls',
-        'current_user': reset_password_token.user,
-        'username': reset_password_token.user.username,
-        'email': reset_password_token.user.email,
-        'reset_password_url': "{}?token={}".format(
-            instance.request.build_absolute_uri(reverse('password_reset:reset-password-confirm')),
-            reset_password_token.key),
-
+        "site_name": "Girls for Girls",
+        "current_user": reset_password_token.user,
+        "username": reset_password_token.user.username,
+        "email": reset_password_token.user.email,
+        "reset_password_url": "{}?token={}".format(
+            instance.request.build_absolute_uri(
+                reverse("password_reset:reset-password-confirm")
+            ),
+            reset_password_token.key,
+        ),
         # TODO insert real contacts
-        'company_address': _('Bishkek, Aaly Tokombaeva, 9/1a'),
-        'company_phone_number': _('+996 (505) 054550'),
-        'company_email': 'girlsforgirls@gmail.com',
-
-        'forgot_your_password': _('Forgot your password?'),
-        'we_received': _('We received a request to reset your password.'),
-        'if_you_did_not': _('If you did not make this request, simply ignore this email.'),
-        'if_you_did': _('If you did make this request just click the button below:'),
-        'reset_password': _('RESET MY PASSWORD'),
-        'if_you_did_not1': _('If you did not request to change your brand password,'),
-        'do_not_have_to': _('you do not have to do anything. So that is easy.'),
+        "company_address": _("Bishkek, Aaly Tokombaeva, 9/1a"),
+        "company_phone_number": _("+996 (505) 054550"),
+        "company_email": "girlsforgirls@gmail.com",
+        "forgot_your_password": _("Forgot your password?"),
+        "we_received": _("We received a request to reset your password."),
+        "if_you_did_not": _(
+            "If you did not make this request, simply ignore this email."
+        ),
+        "if_you_did": _("If you did make this request just click the button below:"),
+        "reset_password": _("RESET MY PASSWORD"),
+        "if_you_did_not1": _("If you did not request to change your brand password,"),
+        "do_not_have_to": _("you do not have to do anything. So that is easy."),
     }
 
     # render email text
-    email_html_message = render_to_string('email/user_reset_password.html', context)
-    email_plaintext_message = render_to_string('email/user_reset_password.txt', context)
+    email_html_message = render_to_string("email/user_reset_password.html", context)
+    email_plaintext_message = render_to_string("email/user_reset_password.txt", context)
 
     msg = EmailMultiAlternatives(
         # title:
@@ -61,7 +64,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         # from:
         settings.EMAIL_HOST,
         # to:
-        [reset_password_token.user.email]
+        [reset_password_token.user.email],
     )
     msg.attach_alternative(email_html_message, "text/html")
     msg.send()
@@ -94,7 +97,7 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(
-            self, phone_number=None, email=None, password=None, **extra_fields
+        self, phone_number=None, email=None, password=None, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -142,11 +145,19 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     # add default profile picture
-    profile_picture = models.ImageField(upload_to="profile_picure/", null=True, blank=True)
+    profile_picture = models.ImageField(
+        upload_to="profile_picure/", null=True, blank=True
+    )
 
-    region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
-    district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
-    village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True, blank=True)
+    region = models.ForeignKey(
+        "geoapi.Region", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    district = models.ForeignKey(
+        "geoapi.District", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    village = models.ForeignKey(
+        "geoapi.Village", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     is_verified = models.BooleanField(default=False)
     is_mentor = models.BooleanField(default=False, blank=True)
