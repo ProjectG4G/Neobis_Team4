@@ -216,7 +216,7 @@ SITE_ID = 1
 
 # Available Languages
 LANGUAGES = [
-    ("kg", _("Kyrgyz")),
+    ("ky", _("Kyrgyz")),
     ("ru", _("Russian")),
 ]
 # Locales available path
