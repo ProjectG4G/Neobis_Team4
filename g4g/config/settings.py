@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "mentorship",
     "trainings",
     "landing_page",
+    "news",
     "forms",
 ]
 
