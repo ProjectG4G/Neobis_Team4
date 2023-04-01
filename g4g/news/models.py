@@ -11,8 +11,8 @@ class Tag(models.Model):
 
 class Article(TranslatableModel):
     translations = TranslatedFields(
-        title=models.CharField(max_length=255, null=False, blank=False),
-        content=models.TextField(null=False, blank=False),
+        title=models.TextField(null=True, blank=True, default=""),
+        content=models.TextField(null=True, blank=True, default=""),
     )
     # author = models.ForeignKey('users.User', on_delete=models.PROTECT)
 
@@ -20,23 +20,23 @@ class Article(TranslatableModel):
     edited = models.DateTimeField(auto_now=True)
 
     SECTIONS = (
-        (1, 'Mentorship'),
-        (2, 'Trainings'),
-        (3, 'Shop'),
-        (4, 'Video-blog'),
+        (1, "Mentorship"),
+        (2, "Trainings"),
+        (3, "Shop"),
+        (4, "Video-blog"),
     )
 
     section = models.IntegerField(choices=SECTIONS, null=False)
 
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, blank=True)
 
     def __str__(self):
         return self.title
 
 
 class ArticleImage(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to="articles")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="images/articles")
 
     def __str__(self):
         return self.article.name
