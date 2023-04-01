@@ -46,14 +46,13 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "corsheaders",
-    "parler",
     # local app
     "users",
     "geoapi",
     "mentorship",
     "trainings",
     "landing_page",
-    "news",
+    "forms",
 ]
 
 MIDDLEWARE = [
@@ -130,15 +129,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "ky"
+LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Bishkek"
 
 USE_I18N = True
 
 USE_TZ = True
-
-USE_L10N = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -219,17 +216,20 @@ SITE_ID = 1
 
 # Available Languages
 LANGUAGES = [
-    ("ky", _("Kyrgyz")),
+    ("en", _("English")),
+    ("kg", _("Kyrgyz")),
     ("ru", _("Russian")),
 ]
-
 # Locales available path
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale/")]
 
 PARLER_DEFAULT_LANGUAGE_CODE = "ky"
 
 PARLER_LANGUAGES = {
-    1: (
+    None: (
+        {
+            "code": "en",
+        },  # English
         {
             "code": "ky",
         },  # Kyrgyz
