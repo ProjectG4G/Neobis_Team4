@@ -129,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ky"
 
 TIME_ZONE = "Asia/Bishkek"
 
@@ -216,7 +216,6 @@ SITE_ID = 1
 
 # Available Languages
 LANGUAGES = [
-    ("en", _("English")),
     ("kg", _("Kyrgyz")),
     ("ru", _("Russian")),
 ]
@@ -226,10 +225,7 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, "locale/")]
 PARLER_DEFAULT_LANGUAGE_CODE = "ky"
 
 PARLER_LANGUAGES = {
-    None: (
-        {
-            "code": "en",
-        },  # English
+    1: (
         {
             "code": "ky",
         },  # Kyrgyz
