@@ -10,13 +10,13 @@ from mentorship.views import (
 )
 
 router = SimpleRouter()
-router.register('programs', MentorshipViewSet, basename='program')
-router.register('questions', QuestionsViewSet, basename='question')
-router.register('applications', ApplicationsViewSet, basename='application')
-router.register('feedback', FeedbackViewSet, basename='feedback')
-router.register('FAQ', FAQViewSet, basename='FAQ')
-router.register('mentors', MentorProfileViewSet, basename='mentor')
+router.register("programs", MentorshipViewSet, basename="program")
+router.register("questions", QuestionsViewSet, basename="question")
+router.register("applications", ApplicationsViewSet, basename="application")
+router.register("feedback", FeedbackViewSet, basename="feedback")
+router.register("FAQ", FAQViewSet, basename="FAQ")
+router.register("mentors", MentorProfileViewSet, basename="mentorprofile")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]
