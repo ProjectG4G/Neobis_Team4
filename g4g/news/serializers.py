@@ -96,6 +96,8 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         language = get_language(self)
 
+        images = validated_data.pop("uploaded_images", [])
+
         article = Article.objects.language(language).create(**validated_data)
 
         article.set_current_language(switch_language(language))
@@ -105,7 +107,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
         article.save()
 
-        upload_images(validated_data.pop("uploaded_images", []), article=article)
+        upload_images(images, article=article)
 
         article.set_current_language(language)
 
@@ -143,6 +145,8 @@ class ArticleUpdateSerializer(serializers.Serializer):
     )
 
     def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
         instance.set_current_language(get_language(self))
 
         instance.title = validated_data["title"]
@@ -150,7 +154,7 @@ class ArticleUpdateSerializer(serializers.Serializer):
 
         instance.save()
 
-        upload_images(validated_data.pop("uploaded_images", []), article=instance)
+        upload_images(uploaded_images, article=instance)
 
         return instance
 
