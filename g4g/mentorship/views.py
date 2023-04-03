@@ -28,7 +28,7 @@ class MentorshipViewSet(ModelViewSet):
     serializer_class = MentorshipSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filter_fields = ['title']
+    filter_fields = ["title"]
 
 
 class QuestionsViewSet(ModelViewSet):
@@ -41,10 +41,10 @@ class ApplicationsViewSet(ModelViewSet):
     queryset = MentorshipApplications.objects.all()
     serializer_class = ApplicationsSerializer
     filter_backends = [DjangoFilterBackend]
-    filter_fields = ['title']
+    filter_fields = ["title"]
 
     def get_permissions(self):
-        if self.action == 'create':
+        if self.action == "create":
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAdminOrReadOnly]
@@ -69,4 +69,4 @@ class MentorProfileViewSet(ModelViewSet):
     serializer_class = MentorProfileSerializer
     permission_classes = [IsAdminOrReadOnly]
 
-    allowed_methods = ['GET', 'PUT', 'PATCH', 'HEAD', 'OPTIONS']
+    allowed_methods = ["GET", "PUT", "PATCH", "HEAD", "OPTIONS"]
