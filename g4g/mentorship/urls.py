@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
-from mentorship.views import (
+from .views import (
     MentorshipViewSet,
     ApplicationsViewSet,
     FeedbackViewSet,
