@@ -1,3 +1,11 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
-# Create your views here.
+from .models import Form
+from .serializers import FormParlerSerializer
+
+
+class FormParlerViewSet(viewsets.ModelViewSet):
+    queryset = Form.objects.all()
+    serializer_class = FormParlerSerializer
+    permission_classes = (AllowAny,)
