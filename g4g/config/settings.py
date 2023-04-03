@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_filters",
     "corsheaders",
+    "parler",
     # local app
     "users",
     "geoapi",
