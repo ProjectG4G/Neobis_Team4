@@ -20,12 +20,15 @@ class Form(TranslatableModel):
 
     formbase = models.ForeignKey(FormBase, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.title} - {self.formbase}"
+
 
 class Question(models.Model):
     order = models.IntegerField(default=0)
 
-    title = (models.TextField(blank=True, default=""),)
-    description = (models.TextField(blank=True, default=""),)
+    title = models.TextField()
+    description = models.TextField()
 
     content = models.JSONField(
         blank=True,
@@ -35,6 +38,9 @@ class Question(models.Model):
     required = models.BooleanField(default=False)
 
     form = models.ForeignKey(Form, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.order} - {self.title}"
 
 
 class Application(models.Model):
