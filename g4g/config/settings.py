@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     "parler",
-
     # local app
     "users",
     "products",

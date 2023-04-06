@@ -24,7 +24,7 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     name = models.CharField(
-        max_length=125,
+        max_length=255,
         verbose_name=_("Имя товара"),
     )
     description = models.TextField(
@@ -37,16 +37,19 @@ class Product(models.Model):
         decimal_places=2,
         max_digits=12,
     )
+    # TODO dynamic pictures
     pictures = models.ImageField(
         upload_to="images/",
         verbose_name=_("Фото товара"),
         default=list,
     )
-    created_date = models.DateTimeField(
+
+    created_at = models.DateTimeField(
         verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
-    updated_date = models.DateTimeField(
+
+    updated_at = models.DateTimeField(
         verbose_name=_("Дата изменения"),
         auto_now=True,
     )
@@ -98,9 +101,9 @@ class Stock(models.Model):
         verbose_name=_("Последнее обновление"),
         auto_now=True,
     )
-    updated_date = models.DateTimeField(
-        auto_now=True,
+    updated_at = models.DateTimeField(
         verbose_name=_("Дата нового поступления"),
+        null=True,
     )
     product = models.ForeignKey(
         Product,
@@ -152,6 +155,9 @@ class CartItem(models.Model):
         verbose_name=_("Корзина"),
         on_delete=models.CASCADE,
     )
+
+    # TODO order
+
     product = models.ForeignKey(
         Product,
         verbose_name=_("Товар"),
@@ -162,21 +168,9 @@ class CartItem(models.Model):
         verbose_name=_("Количество"),
         default=1,
     )
-    price = models.DecimalField(
-        verbose_name=_("Цена"),
-        max_digits=9,
-        decimal_places=2,
-        default=0,
-    )
 
     def __str__(self):
         return f"{self.product} ({self.quantity})"
-
-    @property
-    def total_price(self):
-        return round(
-            self.product.price * (1 - self.product.discount / 100) * self.quantity
-        )
 
     class Meta:
         verbose_name = "Детали корзины"
