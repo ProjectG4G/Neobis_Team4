@@ -1,4 +1,7 @@
 from django.contrib import admin
-from trainings.models import Trainings
 
-admin.site.register(Trainings)
+from parler.admin import TranslatableAdmin
+
+from .models import Trainings
+
+admin.site.register(Trainings, TranslatableAdmin)
