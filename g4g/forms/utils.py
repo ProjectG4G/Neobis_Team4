@@ -1,3 +1,6 @@
+from .models import EventImage
+
+
 def get_language(self):
     lang = self.context["request"].headers.get("Accept-Language")
 
@@ -11,3 +14,8 @@ def switch_language(lang):
         return "ru"
     elif lang == "ru":
         return "ky"
+
+
+def upload_images(images, event):
+    for image in images:
+        EventImage.objects.create(image, event=event)
