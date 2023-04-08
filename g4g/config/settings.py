@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "trainings",
     "landing_page",
     "news",
+    "forms",
 ]
 
 MIDDLEWARE = [
@@ -139,8 +140,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-USE_L10N = True
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
@@ -223,7 +222,6 @@ LANGUAGES = [
     ("ky", _("Kyrgyz")),
     ("ru", _("Russian")),
 ]
-
 # Locales available path
 LOCALE_PATHS = [os.path.join(BASE_DIR, "locale/")]
 
