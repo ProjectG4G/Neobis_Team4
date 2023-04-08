@@ -3,9 +3,35 @@ from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
 
 
-class FormBase(TranslatableModel):
+class Event(TranslatableModel):
+    translations = TranslatedFields(
+        title=models.CharField(max_length=255),
+        description=models.TextField(blank=True, default=""),
+        requirments=models.TextField(blank=True, default=""),
+    )
+
+    type = models.CharField(
+        choices=(
+            ("mentorship", "Mentorship Programs"),
+            ("training", "Trainings"),
+            ("no_event", "No Event"),
+        ),
+        max_length=255,
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+
+class EventImage(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="images/events/")
+
+    def __str__(self):
+        return self.event.title
 
 
 class Form(TranslatableModel):
@@ -19,17 +45,17 @@ class Form(TranslatableModel):
 
     active = models.BooleanField(default=False)
 
-    formbase = models.ForeignKey(FormBase, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.title} - {self.formbase}"
+        return f"{self.title} - {self.event}"
 
 
 class Question(models.Model):
     order = models.IntegerField(default=0)
 
     title = models.TextField()
-    description = models.TextField()
+    description = models.TextField(blank=True)
 
     question_type = models.CharField(
         max_length=255,
@@ -43,16 +69,21 @@ class Question(models.Model):
 
     required = models.BooleanField(default=False)
 
-    form = models.ForeignKey(Form, on_delete=models.CASCADE)
+    form = models.ForeignKey(Form, on_delete=models.CASCADE, related_name="questions")
 
     def __str__(self):
         return f"{self.order} - {self.title}"
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name="choices"
+    )
 
     choice_text = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.question} - {self.choice_text}"
 
 
 class Application(models.Model):
@@ -66,14 +97,21 @@ class Application(models.Model):
         ("accepted", "Accepted"),
     )
 
+    form = models.ForeignKey(Form, on_delete=models.CASCADE)
+
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
 
     status = models.CharField(choices=STATUS, default="filling", max_length=255)
 
+    def __str__(self):
+        return f"{self.form.title} {self.user}"
+
 
 class Response(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name="responses"
+    )
 
     response_choices = models.ManyToManyField(Choice, blank=True)
 
