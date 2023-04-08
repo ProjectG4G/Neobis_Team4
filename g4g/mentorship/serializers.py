@@ -2,29 +2,12 @@ from rest_framework import serializers
 from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 from forms.models import Form
+
 from .models import (
-    Mentorship,
-    MentorshipImage,
     MentorProfile,
 )
 
 from forms.utils import get_language, switch_language
-
-
-class MentorshipImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MentorshipImage
-        fields = "__all__"
-
-
-class MentorshipParlerSerializer(TranslatableModelSerializer):
-    images = MentorshipImageSerializer(many=True, read_only=True)
-    translations = TranslatedFieldsField(shared_model=Mentorship)
-
-    class Meta:
-        model = Mentorship
-        fields = "__all__"
-        extra_fields = "translations"
 
 
 class MentorshipCreateUpdateSerializer(serializers.ModelSerializer):
