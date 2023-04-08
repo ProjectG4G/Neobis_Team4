@@ -1,23 +1,23 @@
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import viewsets, filters
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
+
+from drf_spectacular.utils import extend_schema
+
+from forms.models import Event
+from forms.serializers import EventParlerSerializer
+
 from .permissions import IsAdminOrReadOnly
 
-from .serializers import TrainingsParlerSerializer
-from .models import Trainings
 
+@extend_schema(tags=["Trainings"])
+class TrainingViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.filter(type="training")
+    serializer_class = EventParlerSerializer
 
-class TrainingsParlerViewSet(viewsets.ModelViewSet):
-    queryset = Trainings.objects.all()
-    serializer_class = TrainingsParlerSerializer
-    permission_classes = [AllowAny]
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    filter_fields = ["title"]
-    search_fields = (
+    permission_classes = (IsAdminOrReadOnly,)
+
+    filter_fields = (
         "title",
-        "content",
-        "header1",
-        "header2",
+        "",
     )
