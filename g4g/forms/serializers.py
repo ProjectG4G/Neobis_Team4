@@ -1,96 +1,242 @@
 from rest_framework import serializers
 from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
-from .models import Form, Question, FormBase
+from .models import (
+    Event,
+    EventImage,
+    Form,
+    Question,
+    Choice,
+    Application,
+    Response,
+)
 
-from .utils import get_language, switch_language
+from .utils import get_language, switch_language, upload_images
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventImage
+        fields = (
+            "id",
+            "url",
+            "event",
+            "image",
+        )
+
+
+class EventParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Event, required=False)
+
+    images = EventImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(),
+        allow_empty=True,
+        required=False,
+        write_only=True,
+    )
+
+    class Meta:
+        model = Event
+        fields = (
+            "id",
+            "url",
+            "type",
+            "translations",
+            "images",
+            "uploaded_images",
+            "created_at",
+            "updated_at",
+        )
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
+        event = Event.objects.create(**validated_data)
+
+        event.save()
+
+        upload_images(images=uploaded_images, event=event)
+
+        return event
+
+
+class QuestionChoiceSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Choice
+        fields = (
+            "id",
+            "url",
+            "choice_text",
+        )
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    choices = QuestionChoiceSerializer(many=True, required=False)
+
+    class Meta:
+        model = Question
+        fields = (
+            "id",
+            "url",
+            "title",
+            "description",
+            "form",
+            "question_type",
+            "choices",
+        )
+        # depth = 1
+
+    def create(self, validated_data):
+        choices_data = validated_data.pop("choices", [])
+
+        question = Question.objects.create(**validated_data)
+
+        for choice in choices_data:
+            Choice.objects.create(question=question, **choice)
+
+        return question
+
+    def update(self, instance, validated_data):
+        choices_data = validated_data.pop("choices")
+        choices = instance.choices.all()
+        choices = list(choices)
+
+        instance.title = validated_data.get("title", instance.title)
+        instance.description = validated_data.get("description", instance.description)
+        instance.question_type = validated_data.get(
+            "question_type", instance.question_type
+        )
+
+        instance.save()
+
+        for choice_data in choices_data:
+            if "id" in choice_data:
+                choice = choices.pop(
+                    choices.index(Choice.objects.get(id=choice_data["id"]))
+                )
+
+                choice.choice_text = choice_data.get("choice_text", choice.choice_text)
+
+                choice.save()
+
+            else:
+                Choice.objects.create(question=instance, **choice_data)
+
+        for choice in choices:
+            choice.delete()
+
+        return instance
 
 
 class FormParlerSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Form)
+
+    questions = QuestionSerializer(many=True, required=False)
 
     class Meta:
         model = Form
         fields = (
             "id",
             "url",
+            "event",
             "translations",
             "created_at",
             "updated_at",
             "active",
+            "questions",
         )
 
 
-class FormReadOnlySerializer(serializers.ModelSerializer):
-    title = serializers.SerializerMethodField(read_only=True)
-    description = serializers.SerializerMethodField(read_only=True)
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = "__all__"
+
+
+class ResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Response
+        fields = (
+            "id",
+            "question",
+            "application",
+            "response_text",
+            "response_choices",
+        )
+
+    def create(self, validated_data):
+        question = validated_data["question"]
+        application = validated_data["application"]
+        response_text = validated_data.get("response_text", "")
+        choices_data = validated_data.get("response_choices", [])
+
+        response = Response.objects.create(
+            question=question, application=application, response_text=response_text
+        )
+
+        for choice_data in choices_data:
+            choice = Choice.objects.get(id=choice_data.id)
+            response.response_choices.add(choice)
+        return response
+
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    phone_number = serializers.CharField(source="user.phone_number", read_only=True)
+    region = serializers.CharField(source="user.region", read_only=True)
+    district = serializers.CharField(source="user.district", read_only=True)
+    village = serializers.CharField(source="user.village", read_only=True)
+
+    responses = ResponseSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Form
+        model = Application
         fields = (
-            "title",
-            "description",
-            "active",
-            "formbase",
+            "id",
+            "url",
+            "form",
+            "status",
+            "user",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "region",
+            "district",
+            "village",
+            "responses",
             "created_at",
             "updated_at",
         )
 
-    def get_title(self, obj):
-        obj.set_current_language(get_language(self))
-        return obj.title
 
-    def get_description(self, obj):
-        obj.set_current_language(get_language(self))
-        return obj.descriptions
-
-
-class FormCreateUpdateSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(required=True, allow_blank=True, write_only=True)
-    description = serializers.CharField(required=True, allow_blank=True, write_only=True)
+class ApplicationCreateSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
-        model = Form
+        model = Application
         fields = (
-            "id",
-            "title",
-            "description",
-            "formbase",
+            "form",
+            "phone_number",
         )
 
     def create(self, validated_data):
-        title = validated_data.pop("title", "")
-        description = validated_data.pop("description", "")
+        request = self.context.get("request")
 
-        form = Form.objects.create(**validated_data)
+        user = request.user if request and hasattr(request, "user") else None
 
-        lang = get_language(self)
+        validated_data["user"] = user
+        validated_data["status"] = "filling"
+        phone_number = validated_data.pop("phone_number", None)
+        if user.phone_number is None:
+            user.phone_number = phone_number
+            user.save()
 
-        form.set_current_language(lang)
+        response = super().create(validated_data)
 
-        form.title = title
-        form.description = description
-
-        form.set_current_language(switch_language(lang))
-
-        form.title = ""
-        form.description = ""
-
-        form.set_current_language(lang)
-
-        form.save()
-
-        return form
-
-    def update(self, form, validated_data):
-        title = validated_data.pop("title", "")
-        description = validated_data.pop("description", "")
-
-        form.set_current_language(get_language(self))
-
-        form.title = title
-        form.description = description
-
-        form.save()
-
-        return form
+        return response
