@@ -3,14 +3,14 @@ from parler.admin import TranslatableAdmin
 
 from .models import (
     Application,
+    Event,
     Question,
     Response,
     Form,
-    FormBase,
     Choice,
 )
 
-admin.site.register(FormBase)
+admin.site.register(Event, TranslatableAdmin)
 admin.site.register(Form, TranslatableAdmin)
 admin.site.register(Question)
 admin.site.register(Application)
