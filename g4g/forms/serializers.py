@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.validators import ValidationError
+
 from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 from .models import (
@@ -86,6 +88,7 @@ class QuestionSerializer(serializers.ModelSerializer):
             "form",
             "question_type",
             "choices",
+            "required",
         )
         # depth = 1
 
@@ -109,6 +112,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         instance.question_type = validated_data.get(
             "question_type", instance.question_type
         )
+        instance.required = validated_data.get("required", instance.required)
 
         instance.save()
 
@@ -153,7 +157,12 @@ class FormParlerSerializer(TranslatableModelSerializer):
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = "__all__"
+        fields = (
+            "id",
+            "url",
+            "choice_text",
+            "question",
+        )
 
 
 class ResponseSerializer(serializers.ModelSerializer):
@@ -161,6 +170,7 @@ class ResponseSerializer(serializers.ModelSerializer):
         model = Response
         fields = (
             "id",
+            "url",
             "question",
             "application",
             "response_text",
@@ -181,6 +191,52 @@ class ResponseSerializer(serializers.ModelSerializer):
             choice = Choice.objects.get(id=choice_data.id)
             response.response_choices.add(choice)
         return response
+
+    def validate(self, attrs):
+        question = attrs["question"]
+        application = attrs["application"]
+
+        if Response.objects.filter(question=question, application=application).exists():
+            raise ValidationError(
+                {"detail": "Response for question already exists in Application!"}
+            )
+
+        choices_data = attrs["response_choices"]
+        response_text = attrs["response_text"]
+
+        if question.question_type in ["text", "paragraph"]:
+            if choices_data:
+                raise ValidationError(
+                    {"detail": "Text based Question cannot have choices as Response!"}
+                )
+            if response_text == "" and question.required:
+                raise ValidationError({"detail": "Text based Response can't be empty!"})
+
+        if question.question_type == "multiple_choice":
+            if len(choices_data) != 1 and question.required:
+                raise ValidationError(
+                    {
+                        "detail": "Multiple-choice Question should have one choice as Response!"
+                    }
+                )
+
+        if question.question_type == "checkbox":
+            if len(choices_data) == 0 and question.required:
+                raise ValidationError(
+                    {
+                        "detail": "Checkbox type of Question must have at least one Choice as Response!"
+                    }
+                )
+
+        for choice in choices_data:
+            if choice.question != question:
+                raise ValidationError(
+                    {
+                        "detail": f"This Choice - {choice} doesn't belong to Question - {question}"
+                    }
+                )
+
+        return attrs
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
