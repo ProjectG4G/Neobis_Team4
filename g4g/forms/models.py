@@ -72,7 +72,7 @@ class Question(models.Model):
     form = models.ForeignKey(Form, on_delete=models.CASCADE, related_name="questions")
 
     def __str__(self):
-        return f"{self.order} - {self.title}"
+        return f"{self.title}"
 
 
 class Choice(models.Model):
@@ -83,7 +83,7 @@ class Choice(models.Model):
     choice_text = models.CharField(max_length=255)
 
     def __str__(self):
-        return f"{self.question} - {self.choice_text}"
+        return f"{self.choice_text}"
 
 
 class Application(models.Model):
