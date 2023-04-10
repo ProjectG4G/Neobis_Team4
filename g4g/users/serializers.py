@@ -1,9 +1,7 @@
-from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
-from geoapi.models import Region, District
-from geoapi.utils import extract
+from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
 from geoapi.validations import validate_region_district, validate_district_village
 
@@ -181,7 +179,7 @@ class UserProfileUpdateMiniSerializer(serializers.ModelSerializer):
 
 
 class ModeratorSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
