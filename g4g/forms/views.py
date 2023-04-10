@@ -1,9 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import (
-    AllowAny,
-    IsAdminUser,
     IsAuthenticatedOrReadOnly,
-    IsAuthenticated,
 )
 
 from drf_spectacular.utils import extend_schema
@@ -22,7 +19,6 @@ from .serializers import (
     EventParlerSerializer,
     FormParlerSerializer,
     QuestionSerializer,
-    QuestionChoiceSerializer,
     ApplicationSerializer,
     ApplicationCreateSerializer,
     ResponseSerializer,
@@ -77,7 +73,7 @@ class ChoiceViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["Applications"], description="Application from users")
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
         if self.action in ["retrieve", "list"]:
@@ -90,4 +86,4 @@ class ApplicationViewSet(viewsets.ModelViewSet):
 class ResponseViewSet(viewsets.ModelViewSet):
     queryset = Response.objects.all()
     serializer_class = ResponseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
