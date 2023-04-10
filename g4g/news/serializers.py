@@ -61,14 +61,14 @@ class ArticleReadOnlySerializer(serializers.ModelSerializer):
             "edited",
         )
 
-    def get_lang(self, obj):
+    def get_lang(self, obj) -> str:
         return get_language(self)
 
-    def get_title(self, obj):
+    def get_title(self, obj) -> str:
         obj.set_current_language(get_language(self))
         return obj.title
 
-    def get_content(self, obj):
+    def get_content(self, obj) -> str:
         obj.set_current_language(get_language(self))
         return obj.content
 
