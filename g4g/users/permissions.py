@@ -1,4 +1,4 @@
-from rest_framework.permissions import SAFE_METHODS, BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAdminUser
 from .models import User
 
 
@@ -21,18 +21,10 @@ class IsProfileOwnerOrAdmin(BasePermission):
 
 
 class IsStaff(BasePermission):
-
     def has_permission(self, request, view):
-        if request.user.is_authenticated and request.user.is_staff:
-            return True
-        else:
-            permission_classes = [IsAdminUser]
+        return request.user and request.user.is_staff
 
-    def has_object_permission(self, request, view, obj):
-        # Read permissions are allowed to any request,
-        # so we'll always allow GET, HEAD or OPTIONS requests.
-        if request.user.is_superuser:
-            return True
 
-        if request.user.is_staff and isinstance(obj, User):
-            return not obj.is_superuser
+class IsSuperuser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_superuser
