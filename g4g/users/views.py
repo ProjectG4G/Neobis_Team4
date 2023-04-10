@@ -3,7 +3,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.urls import reverse
 from django.shortcuts import redirect
 
-from rest_framework import generics, status, filters, views
+from rest_framework import generics, status, filters
 
 from rest_framework.decorators import action
 
@@ -34,7 +34,6 @@ from .serializers import (
     EmailVerificationSerializer,
     EmailVerificationConfirmSerializer,
     ChangePasswordSerializer,
-    UserProfileSerializer,
     UserProfileUpdateSerializer,
     ModeratorSerializer,
     DummySerializer,
@@ -44,7 +43,7 @@ from .serializers import (
 
 from .verification import send_verification_email
 
-from .permissions import IsProfileOwnerOrAdmin
+from .permissions import IsProfileOwnerOrAdmin, IsSuperuser
 
 from .filters import UserFilter
 
@@ -238,14 +237,10 @@ class UserProfileView(ModelViewSet):
         "last_name",
     )
 
-    permission_classes = (IsProfileOwnerOrAdmin,)
-
     def get_serializer_class(self):
-        if self.action == "list":
-            return UserProfileSerializer
         if self.action == "create":
             return ModeratorSerializer
-        if self.request.user.is_staff:
+        elif self.request.user.is_staff:
             return UserProfileUpdateSerializer
         else:
             return UserProfileUpdateMiniSerializer
@@ -253,6 +248,10 @@ class UserProfileView(ModelViewSet):
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [IsAdminUser]
+        elif self.action == "make_mentor":
+            permission_classes = [IsAdminUser]
+        elif self.action == "make_moderator":
+            permission_classes = [IsSuperuser]
         else:
             permission_classes = [IsProfileOwnerOrAdmin]
 
