@@ -9,7 +9,6 @@ from rest_framework.decorators import action
 
 from rest_framework.permissions import (
     AllowAny,
-    IsAuthenticatedOrReadOnly,
     IsAdminUser,
     IsAuthenticated,
 )
@@ -181,8 +180,7 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
             if not user.is_verified and default_token_generator.check_token(user, token):
                 user.is_verified = True
                 user.save()
-                # TODO setup valid url
-                return redirect(to="http://localhost:3000/login/")
+                return redirect(to=config("EMAIL_VERIFICATION_REDIRECT_URL"))
             else:
                 return Response(
                     {"detail": "Invalid email or token"},
