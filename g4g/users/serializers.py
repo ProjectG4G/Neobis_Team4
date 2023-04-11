@@ -142,7 +142,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
         read_only_fields = ("is_verified",)
 
-        def validate(self, attrs):
+        def validate(attrs):
             region = attrs["region"]
             district = attrs["district"]
             village = attrs["village"]
@@ -205,7 +205,3 @@ class ModeratorSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
-
-
-class DummySerializer(serializers.Serializer):
-    pass
