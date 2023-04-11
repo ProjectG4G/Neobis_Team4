@@ -21,17 +21,6 @@ router.register(
 )
 
 
-class ListUrlsView(APIView):
-    def get(self, request, format=None):
-        url_list = [
-            request.build_absolute_uri(reverse("mentorprofile-list")),
-            request.build_absolute_uri(reverse("mentee-list")),
-            request.build_absolute_uri(reverse("programs-list")),
-        ]
-        return Response(url_list)
-
-
 urlpatterns = [
     path("", include(router.urls)),
-    path("", ListUrlsView.as_view(), name="urls"),
 ]
