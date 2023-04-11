@@ -125,7 +125,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             "id",
-            "urls",
+            "url",
             "email",
             "phone_number",
             "first_name",
