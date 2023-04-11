@@ -13,7 +13,7 @@ from .models import (
     Response,
 )
 
-from .utils import get_language, switch_language, upload_images
+from .utils import upload_images
 
 
 class EventImageSerializer(serializers.ModelSerializer):
