@@ -62,6 +62,13 @@ class EventParlerSerializer(TranslatableModelSerializer):
 
         return event
 
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_image", [])
+
+        upload_images(images=uploaded_images, event=instance)
+
+        return super().update(instance, validated_data)
+
 
 class QuestionChoiceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
