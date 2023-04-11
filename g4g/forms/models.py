@@ -4,6 +4,8 @@ from parler.models import TranslatableModel, TranslatedFields
 
 
 class Event(TranslatableModel):
+    objects = models.Manager()
+
     translations = TranslatedFields(
         title=models.CharField(max_length=255),
         description=models.TextField(blank=True, default=""),
@@ -27,6 +29,8 @@ class Event(TranslatableModel):
 
 
 class EventImage(models.Model):
+    objects = models.Manager()
+
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="images/events/")
 
@@ -35,6 +39,8 @@ class EventImage(models.Model):
 
 
 class Form(TranslatableModel):
+    objects = models.Manager()
+
     translations = TranslatedFields(
         title=models.TextField(blank=True, default=""),
         description=models.TextField(blank=True, default=""),
@@ -52,6 +58,8 @@ class Form(TranslatableModel):
 
 
 class Question(models.Model):
+    objects = models.Manager()
+
     order = models.IntegerField(default=0)
 
     title = models.TextField()
@@ -76,6 +84,8 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
+    objects = models.Manager()
+
     question = models.ForeignKey(
         Question, on_delete=models.CASCADE, related_name="choices"
     )
@@ -87,6 +97,8 @@ class Choice(models.Model):
 
 
 class Application(models.Model):
+    objects = models.Manager()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -108,6 +120,8 @@ class Application(models.Model):
 
 
 class Response(models.Model):
+    objects = models.Manager()
+
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     application = models.ForeignKey(
         Application, on_delete=models.CASCADE, related_name="responses"
