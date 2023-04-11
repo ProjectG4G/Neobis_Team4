@@ -52,6 +52,7 @@ class ArticleParlerSerializer(TranslatableModelSerializer):
             "section",
             "tags",
             "images",
+            "uploaded_images",
             "published",
             "edited",
         )
