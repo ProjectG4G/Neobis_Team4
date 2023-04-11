@@ -21,7 +21,15 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from django_rest_passwordreset.views import (
+    ResetPasswordRequestToken,
+    ResetPasswordConfirm,
+    ResetPasswordValidateToken,
+)
+
 from django_filters.rest_framework import DjangoFilterBackend
+
+from drf_spectacular.utils import extend_schema
 
 from mentorship.models import MentorProfile
 from mentorship.serializers import MentorProfileSerializer
@@ -35,7 +43,6 @@ from .serializers import (
     ChangePasswordSerializer,
     UserProfileUpdateSerializer,
     ModeratorSerializer,
-    DummySerializer,
     UserProfileUpdateMiniSerializer,
     LoginEmailSerializer,
 )
@@ -58,6 +65,7 @@ def send_verification(request, user):
     send_verification_email(user, verification_url)
 
 
+@extend_schema(tags=["Registration"])
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
@@ -87,6 +95,7 @@ class RegisterView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Login"])
 class LoginPhoneView(generics.GenericAPIView):
     serializer_class = LoginPhoneSerializer
     permission_classes = (AllowAny,)
@@ -116,6 +125,7 @@ class LoginPhoneView(generics.GenericAPIView):
         )
 
 
+@extend_schema(tags=["Login"])
 class LoginEmailView(generics.GenericAPIView):
     serializer_class = LoginEmailSerializer
     permission_classes = (AllowAny,)
@@ -147,6 +157,7 @@ class LoginEmailView(generics.GenericAPIView):
         )
 
 
+@extend_schema(tags=["Email Verification"])
 class EmailVerificationView(generics.GenericAPIView):
     serializer_class = EmailVerificationSerializer
     queryset = User.objects.all()
@@ -169,6 +180,7 @@ class EmailVerificationView(generics.GenericAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Email Verification"])
 class EmailVerificationConfirmView(generics.GenericAPIView):
     serializer_class = EmailVerificationConfirmSerializer
 
@@ -192,6 +204,7 @@ class EmailVerificationConfirmView(generics.GenericAPIView):
             )
 
 
+@extend_schema(tags=["Password Change"])
 class ChangePasswordView(APIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ChangePasswordSerializer
@@ -224,6 +237,7 @@ class ChangePasswordView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["User Profile"])
 class UserProfileView(ModelViewSet):
     queryset = User.objects.all()
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
@@ -308,6 +322,7 @@ class UserProfileView(ModelViewSet):
             )
 
 
+@extend_schema(tags=["User Stats"])
 class UserRegisterStatisticView(APIView):
     def get(self, request, *args, **kwargs):
         year = kwargs["year"]
@@ -324,6 +339,7 @@ class UserRegisterStatisticView(APIView):
 #
 
 
+@extend_schema(tags=["Moderators"])
 class ModeratorViewSet(ModelViewSet):
     queryset = User.objects.filter(is_staff=True)
 
@@ -332,6 +348,7 @@ class ModeratorViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
 
 
+@extend_schema(tags=["Mentor Profiles"])
 class MentorProfileView(generics.RetrieveUpdateAPIView):
     queryset = MentorProfile.objects.all()
     serializer_class = MentorProfileSerializer
@@ -341,6 +358,7 @@ class MentorProfileView(generics.RetrieveUpdateAPIView):
         return MentorProfile.objects.get(user=pk)
 
 
+@extend_schema(tags=["User Profile"])
 class UserProfileRetrieveView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = UserProfileUpdateMiniSerializer
@@ -353,3 +371,18 @@ class UserProfileRetrieveView(RetrieveUpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+
+@extend_schema(tags=["Password Reset"])
+class ResetPasswordView(ResetPasswordRequestToken):
+    pass
+
+
+@extend_schema(tags=["Password Reset"])
+class ResetPasswordConfirmView(ResetPasswordConfirm):
+    pass
+
+
+@extend_schema(tags=["Password Reset"])
+class ResetPasswordValidateView(ResetPasswordValidateToken):
+    pass

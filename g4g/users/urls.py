@@ -19,6 +19,9 @@ from .views import (
     MentorProfileView,
     LoginEmailView,
     UserProfileRetrieveView,
+    ResetPasswordConfirmView,
+    ResetPasswordView,
+    ResetPasswordValidateView,
 )
 
 router = SimpleRouter()
@@ -31,27 +34,34 @@ urlpatterns = [
     path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("logout/", TokenBlacklistView.as_view(), name="logout"),
     path("register/", RegisterView.as_view(), name="register_email"),
+    path("password_reset/", ResetPasswordView.as_view(), name="password_reset"),
     path(
-        "password_reset/",
-        include("django_rest_passwordreset.urls", namespace="password_reset"),
+        "password_reset/validate_token/",
+        ResetPasswordConfirmView.as_view(),
+        name="password_reset_confirm",
     ),
-    path("change_password/", ChangePasswordView.as_view(), name="change_password"),
+    path(
+        "password_reset/validate",
+        ResetPasswordValidateView.as_view(),
+        name="password_reset_validate",
+    ),
+    path("password_change/", ChangePasswordView.as_view(), name="password_change"),
     path("verification/", EmailVerificationView.as_view(), name="verification"),
     path(
         "verification/confirm/",
         EmailVerificationConfirmView.as_view(),
         name="verification_confirm",
     ),
-    path("", include(router.urls)),
     path(
         "users/<int:pk>/mentor_profile/",
         MentorProfileView.as_view(),
         name="mentor_profile",
     ),
-    path("current_user_profile/", UserProfileRetrieveView.as_view(), name="user_profile"),
+    path("user_profile/", UserProfileRetrieveView.as_view(), name="user_profile"),
     path(
         "stats/new-users/<int:year>",
         UserRegisterStatisticView.as_view(),
         name="stats-new-users",
     ),
+    path("", include(router.urls)),
 ]
