@@ -1,45 +1,20 @@
 from rest_framework import serializers
-from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
-
-from forms.models import Form
 
 from .models import (
     MentorProfile,
+    Mentee,
 )
 
-from forms.utils import get_language, switch_language
 
-
-class MentorshipCreateUpdateSerializer(serializers.ModelSerializer):
-    title = serializers.CharField(required=True, allow_blank=True, write_only=True)
-    descriptions = serializers.CharField(required=True, allow_blank=True, write_only=True)
-
+class MenteeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Form
-        fields = "__all__"
-        extra_fields = "translations"
-
-    def create(self, validated_data):
-        title = validated_data.pop("title", "")
-        description = validated_data.pop("description", "")
-        form = Form.objects.create(**validated_data)
-        lang = get_language(self)
-        form.set_current_language(lang)
-        form.title = title
-        form.description = description
-        form.set_current_language(switch_language(lang))
-        form.title = ""
-        form.description = ""
-        form.set_current_language()
-
-    def update(self, form, validated_data):
-        title = validated_data.pop("title", "")
-        description = validated_data.pop("description", "")
-        form.set_current_language(get_language(self))
-        form.title = title
-        form.description = description
-        form.save()
-        return form
+        model = Mentee
+        fields = (
+            "id",
+            "url",
+            "program",
+            "user",
+        )
 
 
 class MentorProfileSerializer(serializers.ModelSerializer):
@@ -61,5 +36,6 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             "profile_picture",
             "image",
             "description",
+            "mentees",
         )
         read_only_fields = ("user",)
