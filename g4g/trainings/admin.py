@@ -1,4 +1,5 @@
 from django.contrib import admin
-from trainings.models import Trainings
 
-admin.site.register(Trainings)
+from .models import Applicants
+
+admin.site.register(Applicants)

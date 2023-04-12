@@ -3,6 +3,8 @@ from parler.models import TranslatableModel, TranslatedFields
 
 
 class Tag(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=32, null=False, blank=False, unique=True)
 
     def __str__(self):
@@ -10,6 +12,8 @@ class Tag(models.Model):
 
 
 class Article(TranslatableModel):
+    objects = models.Manager()
+
     translations = TranslatedFields(
         title=models.TextField(null=True, blank=True, default=""),
         content=models.TextField(null=True, blank=True, default=""),

@@ -1,72 +1,50 @@
 from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework.viewsets import ModelViewSet
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
+from drf_spectacular.utils import extend_schema
+
+from forms.models import Event, Application
+from forms.serializers import EventParlerSerializer, ApplicationSerializer
+from forms.views import ApplicationViewSet
+
 from .serializers import (
-    MentorshipSerializer,
-    ApplicationsSerializer,
-    FAQSerializer,
-    FeedbackSerializer,
-    QuestionSerializer,
     MentorProfileSerializer,
+    MenteeSerializer,
 )
 from .models import (
-    Mentorship,
-    FAQ,
-    Feedback,
-    MentorshipApplications,
-    MentorshipQuestions,
     MentorProfile,
+    Mentee,
 )
 
 from .permissions import IsAdminOrReadOnly
 
 
-class MentorshipViewSet(ModelViewSet):
-    queryset = Mentorship.objects.all()
-    serializer_class = MentorshipSerializer
-    permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filter_fields = ["title"]
+@extend_schema(tags=["Mentorship Programs"])
+class MentorshipViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.filter(type="mentorship")
+    serializer_class = EventParlerSerializer
+
+    permission_classes = (IsAdminOrReadOnly,)
 
 
-class QuestionsViewSet(ModelViewSet):
-    queryset = MentorshipQuestions.objects.all()
-    serializer_class = QuestionSerializer
-    permission_classes = [IsAdminOrReadOnly]
+@extend_schema(tags=["Mentees"])
+class MenteeViewSet(viewsets.ModelViewSet):
+    queryset = Mentee.objects.all()
+    serializer_class = MenteeSerializer
+
+    permission_classes = (IsAdminOrReadOnly,)
 
 
-class ApplicationsViewSet(ModelViewSet):
-    queryset = MentorshipApplications.objects.all()
-    serializer_class = ApplicationsSerializer
-    filter_backends = [DjangoFilterBackend]
-    filter_fields = ["title"]
-
-    def get_permissions(self):
-        if self.action == "create":
-            permission_classes = [IsAuthenticated]
-        else:
-            permission_classes = [IsAdminOrReadOnly]
-
-        return [permission() for permission in permission_classes]
-
-
-class FeedbackViewSet(ModelViewSet):
-    queryset = Feedback.objects.all()
-    serializer_class = FeedbackSerializer
-    permission_classes = [IsAdminOrReadOnly]
-
-
-class FAQViewSet(ModelViewSet):
-    queryset = FAQ.objects.all()
-    serializer_class = FAQSerializer
-    permission_classes = [IsAdminOrReadOnly]
-
-
-class MentorProfileViewSet(ModelViewSet):
+@extend_schema(tags=["Mentor Profiles"])
+class MentorProfileViewSet(viewsets.ModelViewSet):
     queryset = MentorProfile.objects.all()
     serializer_class = MentorProfileSerializer
+
     permission_classes = [IsAdminOrReadOnly]
 
-    allowed_methods = ["GET", "PUT", "PATCH", "HEAD", "OPTIONS"]
+
+@extend_schema(tags=["Mentorship Applications"])
+class MentorshipApplicationsViewSet(ApplicationViewSet):
+    queryset = Application.objects.filter(form__event__type="mentorship")
