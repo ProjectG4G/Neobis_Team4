@@ -1,17 +1,20 @@
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.db import models
+from parler.models import TranslatableModel, TranslatedFields
 
 
 User = get_user_model()
 
 
-class ProductCategory(models.Model):
-    name = models.CharField(
-        verbose_name=_("Имя категории"),
-        max_length=255,
-        blank=True,
-        unique=True,
+class ProductCategory(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(
+            verbose_name=_("Имя категории"),
+            max_length=255,
+            blank=True,
+            unique=True,
+        ),
     )
 
     def __str__(self):
@@ -22,14 +25,20 @@ class ProductCategory(models.Model):
         verbose_name_plural = "Категории"
 
 
-class Product(models.Model):
-    name = models.CharField(
-        max_length=255,
-        verbose_name=_("Имя товара"),
-    )
-    description = models.TextField(
-        blank=True,
-        verbose_name=_("Описание товара"),
+class Product(TranslatableModel):
+    translations = TranslatedFields(
+        name=models.CharField(
+            max_length=255,
+            verbose_name=_("Имя товара"),
+        ),
+        description=models.TextField(
+            blank=True,
+            verbose_name=_("Описание товара"),
+        ),
+        color=models.CharField(
+            max_length=50,
+            verbose_name=_("Расцветки товара"),
+        ),
     )
 
     price = models.DecimalField(
@@ -37,13 +46,6 @@ class Product(models.Model):
         decimal_places=2,
         max_digits=12,
     )
-    # TODO dynamic pictures
-    pictures = models.ImageField(
-        upload_to="images/",
-        verbose_name=_("Фото товара"),
-        default=list,
-    )
-
     created_at = models.DateTimeField(
         verbose_name=_("Дата создания"),
         auto_now_add=True,
@@ -57,15 +59,13 @@ class Product(models.Model):
         verbose_name=_("Данный товар активен"),
         default=True,
     )
-    color = models.CharField(
-        max_length=50,
-        verbose_name=_("Расцветки товара"),
-    )
     discount = models.DecimalField(
         verbose_name=_("Скидка"),
         max_digits=5,
         decimal_places=2,
         default=0,
+        null=True,
+        blank=True,
     )
     category = models.ForeignKey(
         ProductCategory,
@@ -81,6 +81,14 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="images/product/")
+
+    def __str__(self):
+        return self.product.name
 
 
 class Stock(models.Model):
@@ -127,26 +135,63 @@ class Cart(models.Model):
         verbose_name=_("Пользователь"),
         on_delete=models.CASCADE,
     )
-    products = models.ManyToManyField(
-        Product,
-        through="CartItem",
-    )
-
-    created_date = models.DateTimeField(
+    created_at = models.DateTimeField(
         verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
+    total_price = models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return f"Cart {self.id} {self.user}"
+        return f"Cart {self.pk} "
 
-    def calculate_total_price(self):
-        items = self.cartitem_set.all()
-        return sum(item.total_price for item in items)
+    # def calculate_total_price(self):
+    #     items = self.cartitem_set.all()
+    #     return sum(item.total_price for item in items)
 
     class Meta:
         verbose_name = "Корзина"
         verbose_name_plural = "Корзины"
+
+
+class Order(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="orders",
+        verbose_name=_("Пользователь"),
+    )
+    cart = models.ForeignKey(
+        Cart,
+        verbose_name=_("Корзина"),
+        on_delete=models.CASCADE,
+        null=True,
+    )
+    order_datetime = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name=_("Дата заказа"),
+    )
+    total_price = models.FloatField(blank=True, null=True)
+
+    STATUS_CHOICES = (
+        ("P", "Pending"),
+        ("C", "Confirmed"),
+        ("S", "Sent"),
+        ("D", "Delivered"),
+        ("X", "Canceled"),
+    )
+    status = models.CharField(
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default="P",
+        verbose_name=_("Статус"),
+    )
+
+    def __str__(self):
+        return f"{self.user} ({self.get_status_display()})"
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
 
 
 class CartItem(models.Model):
@@ -154,9 +199,16 @@ class CartItem(models.Model):
         Cart,
         verbose_name=_("Корзина"),
         on_delete=models.CASCADE,
+        null=True,
     )
 
     # TODO order
+    order = models.ForeignKey(
+        Order,
+        verbose_name=_("Заказ"),
+        on_delete=models.CASCADE,
+        null=True,
+    )
 
     product = models.ForeignKey(
         Product,
@@ -177,51 +229,11 @@ class CartItem(models.Model):
         verbose_name_plural = "Детали корзины"
 
 
-class Order(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="orders",
-        verbose_name=_("Пользователь"),
-    )
-    cart = models.ForeignKey(
-        Cart,
-        verbose_name=_("Корзина"),
-        on_delete=models.CASCADE,
-        null=True,
-    )
-    order_datetime = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_("Дата заказа"),
-    )
-
-    STATUS_CHOICES = (
-        ("P", "В ожидании"),
-        ("C", "Подтвержден"),
-        ("S", "Отправлен"),
-        ("D", "Доставлен"),
-        ("X", "Отменен"),
-    )
-    status = models.CharField(
-        max_length=1,
-        choices=STATUS_CHOICES,
-        default="P",
-        verbose_name=_("Статус"),
-    )
-
-    def __str__(self):
-        return f"{self.user} ({self.get_status_display()})"
-
-    class Meta:
-        verbose_name = "Заказ"
-        verbose_name_plural = "Заказы"
-
-
-class Reply(models.Model):
+class ProductFeedback(models.Model):
     content = models.TextField(
         verbose_name=_("Текст"),
     )
-    created_date = models.DateTimeField(
+    created_at = models.DateTimeField(
         verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
