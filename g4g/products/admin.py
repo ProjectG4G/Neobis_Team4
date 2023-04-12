@@ -1,6 +1,17 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
-from .models import Product, ProductCategory, Stock, Order, Cart, CartItem, Reply
+
+from parler.admin import TranslatableAdmin
+
+from .models import (
+    Product,
+    ProductCategory,
+    Stock,
+    Order,
+    Cart,
+    CartItem,
+    ProductFeedback,
+)
 
 
 class CartItemAdmin(admin.ModelAdmin):
@@ -53,24 +64,24 @@ class OrderAdmin(admin.ModelAdmin):
 
     def mark_as_confirmed(self, request, queryset):
         queryset.update(status="C")
-        self.message_user(request, _("Выбранные заказы отмечены как подтвержденные."))
+        self.message_user(request, _("Selected orders are marked as confirmed."))
 
     def mark_as_shipped(self, request, queryset):
         queryset.update(status="S")
-        self.message_user(request, _("Выбранные заказы отмечены как отправленные."))
+        self.message_user(request, _("Selected orders are marked as shipped."))
 
     def mark_as_delivered(self, request, queryset):
         queryset.update(status="D")
-        self.message_user(request, _("Выбранные заказы отмечены как доставленные."))
+        self.message_user(request, _("Selected orders are marked as delivered."))
 
     def mark_as_cancelled(self, request, queryset):
         queryset.update(status="X")
-        self.message_user(request, _("Выбранные заказы отмечены как отмененные."))
+        self.message_user(request, _("Selected orders are marked as canceled."))
 
-    mark_as_confirmed.short_description = _("Отметить выбранное как подтвержденное")
-    mark_as_shipped.short_description = _("Отметить выбранное как отправленное")
-    mark_as_delivered.short_description = _("Отметить выбранное как доставленное")
-    mark_as_cancelled.short_description = _("Отметить выбранное как отмененное")
+    mark_as_confirmed.short_description = _("Mark selection as confirmed")
+    mark_as_shipped.short_description = _("Mark selected as sent")
+    mark_as_delivered.short_description = _("Mark selected as delivered")
+    mark_as_cancelled.short_description = _("Mark selected as canceled")
 
     def get_total_price(self, obj):
         items = obj.cart.cartitem_set.all()
@@ -80,7 +91,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "get_products", "created_date", "get_total_price")
+    list_display = ("id", "user", "get_products", "created_at", "get_total_price")
 
     def get_products(self, obj):
         return "\n".join([p.name for p in obj.products.all()])
@@ -94,10 +105,10 @@ class CartAdmin(admin.ModelAdmin):
     get_total_price.short_description = "Общая сумма"
 
 
-admin.site.register(Product)
-admin.site.register(ProductCategory)
+admin.site.register(Product, TranslatableAdmin)
+admin.site.register(ProductCategory, TranslatableAdmin)
 admin.site.register(Stock)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(CartItem, CartItemAdmin)
-admin.site.register(Reply)
+admin.site.register(ProductFeedback)
