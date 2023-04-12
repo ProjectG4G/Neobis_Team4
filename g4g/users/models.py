@@ -4,13 +4,11 @@ from django.utils.translation import gettext_lazy as _
 
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
-from django.template.loader import render_to_string
-from django.urls import reverse
 from django.conf import settings
 
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from geoapi.models import Region, District, Village
+from decouple import config
 
 
 @receiver(reset_password_token_created)
@@ -29,7 +27,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     # send an e-mail to the user
 
     user = reset_password_token.user
-    reset_url = "{}/{}".format('http://localhost:3000/auth/reset-password',
+    reset_url = "{}/{}".format(config("RESET_PASSWORD_URL"),
                                reset_password_token.key),
 
     # render email text
@@ -124,7 +122,7 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     # add default profile picture
-    profile_picture = models.ImageField(upload_to="profile_picure/", null=True, blank=True)
+    profile_picture = models.ImageField(upload_to="profile_picture/", null=True, blank=True)
 
     region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
     district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
