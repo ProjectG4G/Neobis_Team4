@@ -193,7 +193,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "G4G Project API Documentation",
     "VERSION": "2.0.0",
     "SEARCH": True,
-    # "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
     "SWAGGER_UI_SETTINGS": {
         "deepLinking": True,
