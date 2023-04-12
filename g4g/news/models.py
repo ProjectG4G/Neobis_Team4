@@ -1,5 +1,5 @@
 from django.db import models
-from parler.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields, TranslatableManager
 
 
 class Tag(models.Model):
@@ -12,7 +12,7 @@ class Tag(models.Model):
 
 
 class Article(TranslatableModel):
-    objects = models.Manager()
+    objects = TranslatableManager()
 
     translations = TranslatedFields(
         title=models.TextField(null=True, blank=True, default=""),

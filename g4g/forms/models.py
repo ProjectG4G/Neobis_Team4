@@ -1,15 +1,15 @@
 from django.db import models
 
-from parler.models import TranslatableModel, TranslatedFields
+from parler.models import TranslatableModel, TranslatedFields, TranslatableManager
 
 
 class Event(TranslatableModel):
-    objects = models.Manager()
+    objects = TranslatableManager()
 
     translations = TranslatedFields(
         title=models.CharField(max_length=255),
         description=models.TextField(blank=True, default=""),
-        requirments=models.TextField(blank=True, default=""),
+        requirements=models.TextField(blank=True, default=""),
     )
 
     type = models.CharField(
