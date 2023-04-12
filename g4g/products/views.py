@@ -1,85 +1,69 @@
-from rest_framework import generics
+# def clear_cart(request, pk):
+#     cart = Cart.objects.get(id=pk)
+#     cart.products.clear()
+#     cart.total_price = 0
+#     cart.save()
+#     return redirect("swagger-ui")
+
+from rest_framework import viewsets
 from django.shortcuts import redirect
-from .models import ProductCategory, Stock, Order, Cart, CartItem, Product, Reply
+from .models import (
+    ProductCategory,
+    Stock,
+    Order,
+    Cart,
+    CartItem,
+    Product,
+    ProductFeedback,
+)
 from .serializers import (
-    ProductCategorySerializer,
+    ProductCategoryParlerSerializer,
     StockSerializer,
     OrderSerializer,
     CartSerializer,
     CartItemSerializer,
-    ProductSerializer,
-    CommentSerializer
+    ProductParlerSerializer,
+    ProductFeedbackSerializer,
 )
 
 
-class ProductList(generics.ListCreateAPIView):
+class ProductParlerViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
-    serializer_class = ProductSerializer
+    serializer_class = ProductParlerSerializer
 
 
-class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-
-
-class ProductCategoryList(generics.ListCreateAPIView):
+class ProductCategoryParlerViewSet(viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
-    serializer_class = ProductCategorySerializer
+    serializer_class = ProductCategoryParlerSerializer
 
 
-class ProductCategoryDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = ProductCategory.objects.all()
-    serializer_class = ProductCategorySerializer
-
-
-class StockList(generics.ListCreateAPIView):
+class StockViewSet(viewsets.ModelViewSet):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 
 
-class StockDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
-
-
-class OrderList(generics.ListCreateAPIView):
+class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
 
-class OrderDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-
-class CartList(generics.ListCreateAPIView):
+class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
-
-def clear_cart(request, pk):
-    cart = Cart.objects.get(id=pk)
-    cart.products.clear()
-    cart.total_price = 0
-    cart.save()
-    return redirect("swagger-ui")
-
-
-class CartDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Cart.objects.all()
-    serializer_class = CartSerializer
+    def clear_cart(self, request, pk=None):
+        cart = self.get_object()
+        cart.products.clear()
+        cart.total_price = 0
+        cart.save()
+        return redirect("swagger-ui")
 
 
-class CartItemList(generics.ListCreateAPIView):
+class CartItemViewSet(viewsets.ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
 
 
-class CartItemDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializer
-
-
-class ReplyList(generics.ListCreateAPIView):
-    queryset = Reply.objects.all()
-    serializer_class = CommentSerializer
+class ProductFeedbackViewSet(viewsets.ModelViewSet):
+    queryset = ProductFeedback.objects.all()
+    serializer_class = ProductFeedbackSerializer
