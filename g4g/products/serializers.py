@@ -6,61 +6,105 @@ from .models import (
     Order,
     Cart,
     CartItem,
-    Reply,
+    ProductFeedback,
+    ProductImage,
 )
+from parler_rest.serializers import TranslatableModelSerializer, TranslatedFieldsField
 
 
-class ProductCategorySerializer(serializers.ModelSerializer):
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = "__all__"
+
+
+class ProductCategoryParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=ProductCategory)
 
     class Meta:
         model = ProductCategory
-        fields = ['id', 'name']
+        fields = ("id", "name", "translations")
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    category = ProductCategorySerializer()
+# class ProductCategorySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ProductCategory
+#         fields = ["id", "name"]
+
+
+class ProductParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Product)
+    category = ProductCategoryParlerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = "__all__"
+        extra_fields = [
+            "translations",
+        ]
+
+
+#
+# class ProductSerializer(serializers.ModelSerializer):
+#     category = ProductCategorySerializer()
+#
+#     class Meta:
+#         model = Product
+#         fields = "__all__"
+#
 
 
 class SizeSerializer(serializers.ModelSerializer):
-    size_name = serializers.CharField(source='get_size_display')
+    size_name = serializers.CharField(source="get_size_display")
 
     class Meta:
         model = Stock
-        fields = ['size', 'size_name']
+        fields = ["size", "size_name"]
 
 
 class StockSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
+    product = ProductParlerSerializer()
     # size = serializers.CharField(source='get_size_display')
 
     class Meta:
         model = Stock
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    product = ProductParlerSerializer(read_only=True)
+    total_price = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ['id', 'product', 'quantity', 'price']
+        fields = ["id", "product", "quantity", "price", "total_price"]
+
+    def get_total_price(self, obj):
+        price = obj.product.price - obj.product.price * (obj.product.discount / 100)
+        return round(price * obj.quantity)
+
+    get_total_price.short_description = "Общая сумма"
+
+    def get_price(self, obj):
+        return round(obj.product.price)
+
+    price.short_description = "Цена"
 
 
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
-    products = CartItemSerializer(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = '__all__'
+        fields = "__all__"
 
-    def get_total_price(self):
-        pass
+    def get_total_price(self, obj):
+        price = obj.product.price - obj.product.price * (obj.product.discount / 100)
+        return round(price * obj.quantity)
+
+    get_total_price.short_description = "Общая сумма"
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -68,14 +112,14 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'total_price', 'created_date']
-        read_only_fields = ['id', 'created_date']
+        fields = ["id", "user", "total_price", "created_date"]
+        read_only_fields = ["id", "created_date"]
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    product = ProductSerializer(read_only=True)
+class ProductFeedbackSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+    product = ProductParlerSerializer(read_only=True)
 
     class Meta:
-        model = Reply
-        fields = ['id', 'user', 'product', 'created_date', 'content']
+        model = ProductFeedback
+        fields = ["id", "user", "product", "created_date", "content"]
