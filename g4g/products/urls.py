@@ -1,22 +1,24 @@
-from django.urls import path
-from .views import (ProductList, ProductDetail, ProductCategoryList,
-                    ProductCategoryDetail, StockList, StockDetail, OrderList,
-                    OrderDetail, CartList, CartDetail, CartItemList,
-                    CartItemDetail, ReplyList, clear_cart)
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import (
+    ProductParlerViewSet,
+    ProductCategoryParlerViewSet,
+    StockViewSet,
+    OrderViewSet,
+    CartViewSet,
+    CartItemViewSet,
+    ProductFeedbackViewSet,
+)
+
+router = DefaultRouter()
+router.register(r"products", ProductParlerViewSet)
+router.register(r"product-category", ProductCategoryParlerViewSet)
+router.register(r"stock", StockViewSet)
+router.register(r"order", OrderViewSet)
+router.register(r"cart", CartViewSet)
+router.register(r"cart-item", CartItemViewSet)
+router.register(r"product-feedback", ProductFeedbackViewSet)
 
 urlpatterns = [
-    path('products/', ProductList.as_view(), name='product-list'),
-    path('products/<int:pk>/', ProductDetail.as_view(), name='product-detail'),
-    path('product-categories/', ProductCategoryList.as_view(), name='product-category-list'),
-    path('product-categories/<int:pk>/', ProductCategoryDetail.as_view(), name='product-category-detail'),
-    path('stocks/', StockList.as_view(), name='stock-list'),
-    path('stocks/<int:pk>/', StockDetail.as_view(), name='stock-detail'),
-    path('orders/', OrderList.as_view(), name='order-list'),
-    path('orders/<int:pk>/', OrderDetail.as_view(), name='order-detail'),
-    path('carts/', CartList.as_view(), name='cart-list'),
-    path('carts/<int:pk>/', CartDetail.as_view(), name='cart-detail'),
-    path('cart-items/', CartItemList.as_view(), name='cart-item-list'),
-    path('cart-items/<int:pk>/', CartItemDetail.as_view(), name='cart-item-detail'),
-    path('comment/', ReplyList.as_view(), name='comment-list'),
-    path('carts/<int:pk>/clear/', clear_cart, name='clear-cart'),
+    path("", include(router.urls)),
 ]
