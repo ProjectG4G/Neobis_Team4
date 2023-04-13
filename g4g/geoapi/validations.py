@@ -1,4 +1,4 @@
-from .models import Country, District, Region, Village
+from .models import District, Region, Village
 from rest_framework import serializers
 
 
