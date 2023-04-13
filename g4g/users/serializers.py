@@ -142,21 +142,25 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
         read_only_fields = ("is_verified",)
 
-        def validate(attrs):
-            region = attrs["region"]
-            district = attrs["district"]
-            village = attrs["village"]
+    def validate(self, attrs):
+        user = self.context["request"].user
 
-            validate_region_district(region, district)
-            validate_district_village(district, village)
+        region = attrs.get("region", user.region)
+        district = attrs.get("district", user.district)
+        village = attrs.get("village", user.village)
 
-            return attrs
+        validate_region_district(region, district)
+        validate_district_village(district, village)
+
+        return attrs
 
 
 class UserProfileUpdateMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            "id",
+            "url",
             "email",
             "phone_number",
             "first_name",
@@ -168,9 +172,11 @@ class UserProfileUpdateMiniSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, attrs):
-        region = attrs["region"]
-        district = attrs["district"]
-        village = attrs["village"]
+        user = self.context["request"].user
+
+        region = attrs.get("region", user.region)
+        district = attrs.get("district", user.district)
+        village = attrs.get("village", user.village)
 
         validate_region_district(region, district)
         validate_district_village(district, village)
