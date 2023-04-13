@@ -1,6 +1,7 @@
 from django.db import models
 
-from parler.models import TranslatableModel, TranslatedFields, TranslatableManager
+from parler.models import TranslatableModel, TranslatedFields
+from parler.managers import TranslatableManager
 
 
 class Event(TranslatableModel):
