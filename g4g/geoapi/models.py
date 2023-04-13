@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Country(models.Model):
+    objects = models.Manager()
     name = models.CharField(max_length=255, unique=True, null=False, blank=False)
 
     def __str__(self):
@@ -12,6 +13,8 @@ class Country(models.Model):
 
 
 class Region(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=255, unique=True, null=False, blank=False)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
 
@@ -20,25 +23,29 @@ class Region(models.Model):
 
 
 class District(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=255, null=False, blank=False)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
-    city_district = models.ForeignKey('self', null=True, on_delete=models.SET_NULL)
+    city_district = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
 
     DISTRICT_TYPES = (
-        (1, 'District'),
-        (2, 'City'),
+        (1, "District"),
+        (2, "City"),
     )
 
     type = models.IntegerField(choices=DISTRICT_TYPES, default=1, null=False)
 
     def __str__(self):
         if self.type == 1:
-            return self.name + ' району'
+            return self.name + " району"
         else:
-            return self.name + ' шаары'
+            return self.name + " шаары"
 
 
 class Village(models.Model):
+    objects = models.Manager()
+
     name = models.CharField(max_length=255, null=False, blank=False)
     district = models.ForeignKey(District, on_delete=models.CASCADE, null=True)
 
