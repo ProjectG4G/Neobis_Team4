@@ -3,17 +3,17 @@ from rest_framework import serializers
 
 
 def validate_region_district(region, district):
-    if not Region.objects.filter(id=region.id).exists():
+    if region and not Region.objects.filter(id=region.id).exists():
         raise serializers.ValidationError(
             {"detail": "Given region {} does not exist!".format(region)}
         )
 
-    if not District.objects.filter(id=district.id).exists():
+    if district and not District.objects.filter(id=district.id).exists():
         raise serializers.ValidationError(
             {"detail": "Given district {} does not exist!".format(district)}
         )
 
-    if district.region != region:
+    if district and district.region != region:
         raise serializers.ValidationError(
             {
                 "detail": "Given district/city {} doesn't belong to region {}".format(
@@ -24,7 +24,7 @@ def validate_region_district(region, district):
 
 
 def validate_district_village(district, village):
-    if not District.objects.filter(id=district.id).exists():
+    if district and not District.objects.filter(id=district.id).exists():
         raise serializers.ValidationError(
             {"detail": "Given district {} does not exist!".format(district)}
         )
