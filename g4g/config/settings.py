@@ -169,7 +169,6 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -256,16 +255,4 @@ CLOUDINARY_STORAGE = {
 
 CORS_ORIGIN_ALLOW_ALL = config("CORS_ALL", cast=bool, default=False)
 
-CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001",
-    "http://localhost:3001",
-]
-
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-    "http://localhost:3001",
-    "http://localhost:3001",
-]
+CORS_ALLOWED_ORIGINS = config("ALLOWED_ORIGINS", cast=str).split(",")
