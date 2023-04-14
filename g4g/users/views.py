@@ -55,6 +55,8 @@ from .filters import UserFilter
 
 from decouple import config
 
+from products.models import Cart
+
 
 def send_verification(request, user):
     token = default_token_generator.make_token(user)
@@ -76,6 +78,9 @@ class RegisterView(generics.CreateAPIView):
 
         if serializer.is_valid():
             user = serializer.save()
+
+            cart = Cart.objects.create(user=user)
+            cart.save()
 
             if config("VERIFICATION", default=False, cast=bool):
                 if user.email and not user.is_verified:
