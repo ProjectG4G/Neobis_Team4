@@ -2,12 +2,15 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
 from django.db import models
 from parler.models import TranslatableModel, TranslatedFields
+from parler.managers import TranslatableManager
 
 
 User = get_user_model()
 
 
 class ProductCategory(TranslatableModel):
+    objects = TranslatableManager()
+
     translations = TranslatedFields(
         name=models.CharField(
             verbose_name=_("Имя категории"),
@@ -26,6 +29,8 @@ class ProductCategory(TranslatableModel):
 
 
 class Product(TranslatableModel):
+    objects = TranslatableManager()
+
     translations = TranslatedFields(
         name=models.CharField(
             max_length=255,
@@ -92,6 +97,7 @@ class ProductImage(models.Model):
 
 
 class Stock(models.Model):
+    objects = models.Manager()
     size = models.SmallIntegerField(
         verbose_name=_("Размер"),
         choices=(
@@ -128,8 +134,12 @@ class Stock(models.Model):
         verbose_name_plural = "Склад"
         ordering = ("product", "last_updated")
 
+    def add_quantity(self, quantity):
+        self.quantity += quantity
+
 
 class Cart(models.Model):
+    objects = models.Manager()
     user = models.ForeignKey(
         User,
         verbose_name=_("Пользователь"),
@@ -144,9 +154,8 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart {self.pk} "
 
-    # def calculate_total_price(self):
-    #     items = self.cartitem_set.all()
-    #     return sum(item.total_price for item in items)
+    def add_price(self, price):
+        self.total_price += price
 
     class Meta:
         verbose_name = "Корзина"
@@ -154,23 +163,20 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
+    objects = models.Manager()
+
     user = models.ForeignKey(
-        User,
+        "users.User",
         on_delete=models.PROTECT,
         related_name="orders",
         verbose_name=_("Пользователь"),
     )
-    cart = models.ForeignKey(
-        Cart,
-        verbose_name=_("Корзина"),
-        on_delete=models.CASCADE,
-        null=True,
-    )
+
     order_datetime = models.DateTimeField(
         auto_now_add=True,
         verbose_name=_("Дата заказа"),
     )
-    total_price = models.FloatField(blank=True, null=True)
+    total_price = models.FloatField(blank=True, null=True, default=0)
 
     STATUS_CHOICES = (
         ("P", "Pending"),
@@ -189,32 +195,37 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.user} ({self.get_status_display()})"
 
+    def add_price(self, price):
+        self.total_price += price
+
     class Meta:
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
 
 class CartItem(models.Model):
+    objects = models.Manager()
+
     cart = models.ForeignKey(
-        Cart,
+        "products.Cart",
         verbose_name=_("Корзина"),
         on_delete=models.CASCADE,
         null=True,
     )
-
-    # TODO order
     order = models.ForeignKey(
-        Order,
+        "products.Order",
         verbose_name=_("Заказ"),
         on_delete=models.CASCADE,
+        blank=True,
         null=True,
     )
 
     product = models.ForeignKey(
-        Product,
+        "products.Product",
         verbose_name=_("Товар"),
         on_delete=models.CASCADE,
         related_name="product_in_cart",
+        null=True,
     )
     quantity = models.PositiveIntegerField(
         verbose_name=_("Количество"),
@@ -228,8 +239,35 @@ class CartItem(models.Model):
         verbose_name = "Детали корзины"
         verbose_name_plural = "Детали корзины"
 
+    @staticmethod
+    def get_total_price(price, quantity, discount):
+        price = price - price * (discount / 100)
+        return round(price * quantity)
+
+    def save(self, *args, **kwargs):
+        total_price = self.get_total_price(
+            self.product.price, self.quantity, self.product.discount
+        )
+        self.cart.add_price(total_price)
+
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        total_price = self.get_total_price(
+            self.product.price, self.quantity, self.product.discount
+        )
+
+        if self.cart:
+            self.cart.add_price(-total_price)
+        elif self.order:
+            self.order.add_price(-total_price)
+
+        super().delete(*args, **kwargs)
+
 
 class ProductFeedback(models.Model):
+    objects = models.Manager()
+
     content = models.TextField(
         verbose_name=_("Текст"),
     )
