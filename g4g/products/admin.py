@@ -30,6 +30,7 @@ class CartItemAdmin(admin.ModelAdmin):
 
     total_price.short_description = "Общая сумма"
 
+    @admin.display(empty_value=0)
     def price1(self, obj):
         return round(obj.product.price)
 
@@ -83,24 +84,26 @@ class OrderAdmin(admin.ModelAdmin):
     mark_as_delivered.short_description = _("Mark selected as delivered")
     mark_as_cancelled.short_description = _("Mark selected as canceled")
 
+    @admin.display(empty_value=0)
     def get_total_price(self, obj):
-        items = obj.cart.cartitem_set.all()
-        return sum(item.total_price for item in items)
+        return obj.cart.total_price
 
     get_total_price.short_description = "Общая сумма"
 
 
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "user", "get_products", "created_at", "get_total_price")
+    list_display = ("id", "user", "created_at", "get_products", "get_total_price")
 
+    @admin.display(empty_value=0)
     def get_products(self, obj):
-        return "\n".join([p.name for p in obj.products.all()])
+        items = CartItem.objects.filter(cart=obj)
+        return "\n".join([p.product.name for p in items.all()])
 
     get_products.short_description = "Товары"
 
+    @admin.display(empty_value=0)
     def get_total_price(self, obj):
-        items = obj.cartitem_set.all()
-        return sum(item.total_price for item in items)
+        return obj.total_price
 
     get_total_price.short_description = "Общая сумма"
 
