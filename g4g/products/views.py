@@ -1,10 +1,3 @@
-# def clear_cart(request, pk):
-#     cart = Cart.objects.get(id=pk)
-#     cart.products.clear()
-#     cart.total_price = 0
-#     cart.save()
-#     return redirect("swagger-ui")
-
 from rest_framework import viewsets
 from django.shortcuts import redirect
 from .models import (
@@ -51,12 +44,11 @@ class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
 
+    @action(detail=True, methods=["put"])
     def clear_cart(self, request, pk=None):
         cart = self.get_object()
-        cart.products.clear()
-        cart.total_price = 0
-        cart.save()
-        return redirect("swagger-ui")
+        CartItem.objects.filter(cart=cart).delete()
+        return Response({"detail": "Cart cleared successfully."})
 
 
 class CartItemViewSet(viewsets.ModelViewSet):
