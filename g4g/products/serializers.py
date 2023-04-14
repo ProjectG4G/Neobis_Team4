@@ -26,12 +26,6 @@ class ProductCategoryParlerSerializer(TranslatableModelSerializer):
         fields = ("id", "name", "translations")
 
 
-# class ProductCategorySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ProductCategory
-#         fields = ["id", "name"]
-
-
 class ProductParlerSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Product)
     category = ProductCategoryParlerSerializer(many=True, read_only=True)
@@ -42,16 +36,6 @@ class ProductParlerSerializer(TranslatableModelSerializer):
         extra_fields = [
             "translations",
         ]
-
-
-#
-# class ProductSerializer(serializers.ModelSerializer):
-#     category = ProductCategorySerializer()
-#
-#     class Meta:
-#         model = Product
-#         fields = "__all__"
-#
 
 
 class SizeSerializer(serializers.ModelSerializer):
@@ -76,44 +60,112 @@ class CartItemSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
+    size = serializers.ChoiceField(
+        choices=(
+            (1, "S"),
+            (2, "M"),
+            (3, "L"),
+            (4, "XL"),
+        )
+    )
+
     class Meta:
         model = CartItem
-        fields = ["id", "product", "quantity", "price", "total_price"]
+        fields = (
+            "id",
+            "url",
+            "cart",
+            "product",
+            "quantity",
+            "price",
+            "total_price",
+        )
 
-    def get_total_price(self, obj):
-        price = obj.product.price - obj.product.price * (obj.product.discount / 100)
-        return round(price * obj.quantity)
+        read_only_fields = ("cart",)
 
-    get_total_price.short_description = "Общая сумма"
+    def validate(self, attrs):
+        product = attrs["product"]
+        quantity = attrs["quantity"]
+        size = attrs["size"]
 
-    def get_price(self, obj):
-        return round(obj.product.price)
+        stock = Stock.objects.filter(product=product, size=size).first()
 
-    price.short_description = "Цена"
+        if stock is not None and stock.quantity < quantity:
+            raise serializers.ValidationError(
+                "You can't order more products than we have in stock."
+            )
+
+        return attrs
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["cart"] = user.cart
+
+        product = validated_data["product"]
+        size = validated_data["size"]
+        quantity = validated_data["quantity"]
+
+        stock = Stock.objects.get(product=product, size=size)
+
+        stock.add_quantity(-quantity)
+
+        return super().create(validated_data)
 
 
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)
-    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Cart
-        fields = "__all__"
-
-    def get_total_price(self, obj):
-        price = obj.product.price - obj.product.price * (obj.product.discount / 100)
-        return round(price * obj.quantity)
-
-    get_total_price.short_description = "Общая сумма"
+        fields = (
+            "id",
+            "url",
+            "user",
+            "created_at",
+            "total_price",
+            "items",
+        )
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Order
-        fields = ["id", "user", "total_price", "created_date"]
-        read_only_fields = ["id", "created_date"]
+        fields = (
+            "id",
+            "url",
+            "user",
+            "cart",
+            "order_datetime",
+            "status",
+            "total_price",
+            "created_date",
+        )
+        read_only_fields = (
+            "user",
+            "created_date",
+            "total_price",
+            "order_datetime",
+        )
+
+    def create(self, validated_data):
+        user = self.context["request"].user
+        validated_data["user"] = user
+
+        cart = validated_data["cart"]
+
+        items = CartItem.objects.filter(cart=cart)
+
+        order = Order.objects.create(**validated_data)
+
+        for item in items:
+            item.order = order
+            item.cart = None
+            item.save()
+
+        cart.total_price = 0
+        cart.save()
+
+        return order
 
 
 class ProductFeedbackSerializer(serializers.ModelSerializer):
