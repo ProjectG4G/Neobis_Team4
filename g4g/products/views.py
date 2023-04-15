@@ -1,5 +1,7 @@
 from rest_framework import viewsets
-from django.shortcuts import redirect
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from .models import (
     ProductCategory,
     Stock,
@@ -10,6 +12,7 @@ from .models import (
     ProductFeedback,
     ProductImage,
 )
+
 from .serializers import (
     ProductCategoryParlerSerializer,
     StockSerializer,
