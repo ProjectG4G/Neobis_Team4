@@ -12,13 +12,16 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.register(r"products", ProductParlerViewSet)
-router.register(r"product-category", ProductCategoryParlerViewSet)
-router.register(r"stock", StockViewSet)
-router.register(r"order", OrderViewSet)
-router.register(r"cart", CartViewSet)
-router.register(r"cart-item", CartItemViewSet)
-router.register(r"product-feedback", ProductFeedbackViewSet)
+router.register(r"products", ProductParlerViewSet, basename="product")
+router.register(
+    r"product-categories", ProductCategoryParlerViewSet, basename="productcategory"
+)
+router.register(r"product-images", ProductImageViewSet, basename="productimage")
+router.register(r"stocks", StockViewSet, basename="stock")
+router.register(r"orders", OrderViewSet, basename="order")
+router.register(r"carts", CartViewSet, basename="cart")
+router.register(r"cart-items", CartItemViewSet, basename="cartitem")
+router.register(r"feedbacks", ProductFeedbackViewSet, basename="productfeedback")
 
 urlpatterns = [
     path("", include(router.urls)),
