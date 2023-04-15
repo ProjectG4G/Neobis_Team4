@@ -15,7 +15,12 @@ from parler_rest.serializers import TranslatableModelSerializer, TranslatedField
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
-        fields = "__all__"
+        fields = (
+            "id",
+            "url",
+            "image",
+            "product",
+        )
 
 
 class ProductCategoryParlerSerializer(TranslatableModelSerializer):
@@ -38,6 +43,7 @@ class ProductParlerSerializer(TranslatableModelSerializer):
         ]
 
 
+
 class SizeSerializer(serializers.ModelSerializer):
     size_name = serializers.CharField(source="get_size_display")
 
@@ -52,7 +58,15 @@ class StockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stock
-        fields = "__all__"
+        fields = (
+            "id",
+            "url",
+            "size",
+            "quantity",
+            "last_updated",
+            "updated_at",
+            "product",
+        )
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -61,12 +75,13 @@ class CartItemSerializer(serializers.ModelSerializer):
     price = serializers.SerializerMethodField()
 
     size = serializers.ChoiceField(
+        write_only=True,
         choices=(
             (1, "S"),
             (2, "M"),
             (3, "L"),
             (4, "XL"),
-        )
+        ),
     )
 
     class Meta:
@@ -77,8 +92,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             "cart",
             "product",
             "quantity",
-            "price",
-            "total_price",
+            "size",
         )
 
         read_only_fields = ("cart",)
@@ -107,7 +121,9 @@ class CartItemSerializer(serializers.ModelSerializer):
 
         stock = Stock.objects.get(product=product, size=size)
 
-        stock.add_quantity(-quantity)
+        stock.quantity -= quantity
+        stock.save()
+        validated_data.pop("size")
 
         return super().create(validated_data)
 
@@ -138,11 +154,9 @@ class OrderSerializer(serializers.ModelSerializer):
             "order_datetime",
             "status",
             "total_price",
-            "created_date",
         )
         read_only_fields = (
             "user",
-            "created_date",
             "total_price",
             "order_datetime",
         )
