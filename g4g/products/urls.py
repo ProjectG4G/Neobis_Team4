@@ -8,6 +8,7 @@ from .views import (
     CartViewSet,
     CartItemViewSet,
     ProductFeedbackViewSet,
+    ProductImageViewSet,
 )
 
 router = DefaultRouter()
