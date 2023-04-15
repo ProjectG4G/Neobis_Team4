@@ -89,6 +89,8 @@ class Product(TranslatableModel):
 
 
 class ProductImage(models.Model):
+    objects = models.Manager()
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
     image = models.ImageField(upload_to="images/product/")
 
@@ -120,14 +122,14 @@ class Stock(models.Model):
         null=True,
     )
     product = models.ForeignKey(
-        Product,
+        "products.Product",
         on_delete=models.PROTECT,
         verbose_name=_("Продукт"),
         related_name="stocks",
     )
 
     def __str__(self):
-        return f"{self.product}{self.get_size_display()}"
+        return f"{self.product} [{self.get_size_display()}]"
 
     class Meta:
         verbose_name = "Склад"
