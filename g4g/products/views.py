@@ -8,6 +8,7 @@ from .models import (
     CartItem,
     Product,
     ProductFeedback,
+    ProductImage,
 )
 from .serializers import (
     ProductCategoryParlerSerializer,
@@ -17,7 +18,13 @@ from .serializers import (
     CartItemSerializer,
     ProductParlerSerializer,
     ProductFeedbackSerializer,
+    ProductImageSerializer,
 )
+
+
+class ProductImageViewSet(viewsets.ModelViewSet):
+    queryset = ProductImage.objects.all()
+    serializer_class = ProductImageSerializer
 
 
 class ProductParlerViewSet(viewsets.ModelViewSet):
