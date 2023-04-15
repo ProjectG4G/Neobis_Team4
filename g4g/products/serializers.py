@@ -28,20 +28,51 @@ class ProductCategoryParlerSerializer(TranslatableModelSerializer):
 
     class Meta:
         model = ProductCategory
-        fields = ("id", "name", "translations")
+        fields = (
+            "id",
+            "url",
+            "translations",
+        )
 
 
 class ProductParlerSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Product)
-    category = ProductCategoryParlerSerializer(many=True, read_only=True)
+    category = ProductCategoryParlerSerializer(read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True)
+
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(required=False),
+        allow_empty=True,
+        write_only=True,
+        required=False,
+    )
 
     class Meta:
         model = Product
         fields = "__all__"
-        extra_fields = [
+        extra_fields = (
+            "url",
             "translations",
-        ]
+            "images",
+        )
 
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
+        product = Product.objects.create(**validated_data)
+
+        for image in uploaded_images:
+            ProductImage.objects.create(image=image, product=product)
+
+        return product
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
+        for image in uploaded_images:
+            ProductImage.objects.create(image=image, product=instance)
+
+        return super().update(instance, validated_data)
 
 
 class SizeSerializer(serializers.ModelSerializer):
@@ -53,8 +84,7 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class StockSerializer(serializers.ModelSerializer):
-    product = ProductParlerSerializer()
-    # size = serializers.CharField(source='get_size_display')
+    # product = ProductParlerSerializer(read_only=True)
 
     class Meta:
         model = Stock
@@ -70,9 +100,7 @@ class StockSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
-    product = ProductParlerSerializer(read_only=True)
-    total_price = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
+    # product = ProductParlerSerializer(read_only=True)
 
     size = serializers.ChoiceField(
         write_only=True,
@@ -90,6 +118,7 @@ class CartItemSerializer(serializers.ModelSerializer):
             "id",
             "url",
             "cart",
+            "order",
             "product",
             "quantity",
             "size",
@@ -98,9 +127,9 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = ("cart",)
 
     def validate(self, attrs):
-        product = attrs["product"]
-        quantity = attrs["quantity"]
-        size = attrs["size"]
+        product = attrs.get("product")
+        quantity = attrs.get("quantity")
+        size = attrs.get("size")
 
         stock = Stock.objects.filter(product=product, size=size).first()
 
@@ -113,7 +142,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = self.context["request"].user
-        validated_data["cart"] = user.cart
+        validated_data["cart"] = Cart.objects.get(user=user)
 
         product = validated_data["product"]
         size = validated_data["size"]
@@ -150,7 +179,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "id",
             "url",
             "user",
-            "cart",
             "order_datetime",
             "status",
             "total_price",
@@ -165,7 +193,7 @@ class OrderSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         validated_data["user"] = user
 
-        cart = validated_data["cart"]
+        cart = Cart.objects.get(user=user)
 
         items = CartItem.objects.filter(cart=cart)
 
