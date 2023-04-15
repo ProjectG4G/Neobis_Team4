@@ -73,6 +73,7 @@ class Question(models.Model):
             ("paragraph", "Paragraph"),
             ("multiple_choice", "Multiple Choice"),
             ("checkbox", "Checkbox"),
+            ("file", "File"),
         ),
     )
 
@@ -131,3 +132,5 @@ class Response(models.Model):
     response_choices = models.ManyToManyField(Choice, blank=True)
 
     response_text = models.TextField(blank=True, null=True)
+
+    response_file = models.FileField(blank=True, null=True, upload_to="files/forms/")
