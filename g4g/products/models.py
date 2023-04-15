@@ -134,9 +134,6 @@ class Stock(models.Model):
         verbose_name_plural = "Склад"
         ordering = ("product", "last_updated")
 
-    def add_quantity(self, quantity):
-        self.quantity += quantity
-
 
 class Cart(models.Model):
     objects = models.Manager()
