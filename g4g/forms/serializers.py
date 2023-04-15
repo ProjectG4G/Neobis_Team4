@@ -182,17 +182,13 @@ class ResponseSerializer(serializers.ModelSerializer):
             "application",
             "response_text",
             "response_choices",
+            "response_file",
         )
 
     def create(self, validated_data):
-        question = validated_data["question"]
-        application = validated_data["application"]
-        response_text = validated_data.get("response_text", "")
-        choices_data = validated_data.get("response_choices", [])
+        choices_data = validated_data.pop("response_choices", [])
 
-        response = Response.objects.create(
-            question=question, application=application, response_text=response_text
-        )
+        response = Response.objects.create(**validated_data)
 
         for choice_data in choices_data:
             choice = Choice.objects.get(id=choice_data.id)
@@ -208,8 +204,16 @@ class ResponseSerializer(serializers.ModelSerializer):
                 {"detail": "Response for question already exists in Application!"}
             )
 
-        choices_data = attrs["response_choices"]
-        response_text = attrs["response_text"]
+        response_file = attrs.get("response_file", None)
+
+        choices_data = attrs.get("response_choices", [])
+        response_text = attrs.get("response_text", "")
+
+        if question.question_type == "file":
+            if not response_file and question.required:
+                raise ValidationError({"detail": "File must be uploaded!"})
+            if choices_data or response_text:
+                raise ValidationError({"detail": "Only File must be uploaded!"})
 
         if question.question_type in ["text", "paragraph"]:
             if choices_data:
