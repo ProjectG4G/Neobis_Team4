@@ -1,15 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import SimpleRouter
 
-from .models import VideoCategory, Video, Comment
-from .views import RecentVideoViewSet
+from .views import PlaylistViewSet, VideoViewSet, CommentViewSet, RecentlyWatchedViewSet
 
 
-router = SimpleRouter
-router.register("category", VideoCategory, basename="category")
-router.register("video", Video, basename="video")
-router.register("comment", Comment, basename="comment")
-router.register("recent_video", RecentVideoViewSet.as_view(), basename="recent_Video")
+router = SimpleRouter()
+router.register("playlists", PlaylistViewSet, basename="playlist")
+router.register("videos", VideoViewSet, basename="video")
+router.register("comments", CommentViewSet, basename="comment")
+router.register("history", RecentlyWatchedViewSet, basename="recentlywatched")
 
 urlpatterns = [
     path("", include(router.urls)),
