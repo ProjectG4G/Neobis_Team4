@@ -1,18 +1,26 @@
 from rest_framework import viewsets
-from .models import VideoCategory, Video, Comment
-from .serializers import VideoCategorySerializer, VideoSerializer, CommentSerializer
+from .models import Playlist, Video, Comment, RecentlyWatched
+from .serializers import PlaylistSerializer, VideoSerializer, CommentSerializer, RecentlyWatchedSerializer
 
 
-class RecentVideoViewSet(viewsets.ModelViewSet):
-    queryset = Video.objects.order_by("-created_at")[:5]
-    serializer = VideoSerializer
+class VideoViewSet(viewsets.ModelViewSet):
+    queryset = Video.objects.all()
+    serializer_class = VideoSerializer
 
 
-class VideoCategoryViewSet(viewsets.ModelViewSet):
-    queryset = VideoCategory.object.all
-    serializer = VideoCategorySerializer
+class RecentlyWatchedViewSet(viewsets.ModelViewSet):
+    serializer_class = RecentlyWatchedSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return RecentlyWatched.objects.filter(user=user).order_by('-timestamp')[:10]
+
+
+class PlaylistViewSet(viewsets.ModelViewSet):
+    queryset = Playlist.objects.all()
+    serializer_class = PlaylistSerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.object.all
-    serializer = CommentSerializer
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
