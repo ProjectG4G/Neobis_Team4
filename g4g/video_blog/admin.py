@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import VideoCategory, Video, Comment
+from parler.admin import TranslatableAdmin
+from .models import Playlist, Video, Comment, RecentlyWatched
 
-admin.site.register(VideoCategory)
+admin.site.register(Playlist, TranslatableAdmin)
 admin.site.register(Video)
 admin.site.register(Comment)
+admin.site.register(RecentlyWatched)
