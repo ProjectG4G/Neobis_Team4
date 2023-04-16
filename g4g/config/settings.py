@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "landing_page",
     "news",
     "forms",
+    "video_blog",
 ]
 
 MIDDLEWARE = [

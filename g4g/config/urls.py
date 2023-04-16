@@ -17,6 +17,7 @@ urlpatterns = [
     path("geoapi/", include("geoapi.urls")),
     path("api/", include("landing_page.urls")),
     path("api/forms/", include("forms.urls")),
+    path("api/video_blog/", include("video_blog.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     # Optional UI:
     path(
