@@ -204,4 +204,4 @@ class ProductFeedbackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductFeedback
-        fields = ["id", "user", "product", "created_date", "content"]
+        fields = ["id", "user", "product", "created_at", "content"]
