@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from .models import (
     ProductCategory,
-    Stock,
+    ProductColor,
     Order,
     Cart,
     CartItem,
@@ -15,7 +15,7 @@ from .models import (
 
 from .serializers import (
     ProductCategoryParlerSerializer,
-    StockSerializer,
+    ProductColorParlerSerializer,
     OrderSerializer,
     CartSerializer,
     CartItemSerializer,
@@ -44,6 +44,10 @@ class StockViewSet(viewsets.ModelViewSet):
     queryset = Stock.objects.all()
     serializer_class = StockSerializer
 
+class ProductColorParlerViewSet(viewsets.ModelViewSet):
+    queryset = ProductColor.objects.all()
+    serializer_class = ProductCategoryParlerSerializer
+
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -57,6 +61,8 @@ class CartViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def clear_cart(self, request, pk=None):
         cart = self.get_object()
+        cart.total_price = 0
+        cart.save()
         CartItem.objects.filter(cart=cart).delete()
         return Response({"detail": "Cart cleared successfully."})
 
