@@ -89,3 +89,7 @@ ipython_config.py
 env/
 venv/
 .venv/
+
+g4g/static/admin/
+g4g/static/parler/
+g4g/static/rest_framework/

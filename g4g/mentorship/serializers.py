@@ -36,6 +36,8 @@ class MentorProfileSerializer(serializers.ModelSerializer):
             "profile_picture",
             "image",
             "description",
+            "programs",
             "mentees",
         )
+
         read_only_fields = ("user",)

@@ -19,4 +19,10 @@ class MentorProfile(models.Model):
     )
     image = models.ImageField(upload_to="images/mentor/", null=True)
     description = models.TextField(null=True)
+
+    programs = models.ManyToManyField("forms.Event", blank=True, default=[])
+
     mentees = models.ManyToManyField("Mentee", blank=True)
+
+    def __str__(self):
+        return f"{self.user.first_name} - {self.mentees.count()}"
