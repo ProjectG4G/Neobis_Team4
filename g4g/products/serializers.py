@@ -98,16 +98,6 @@ class ProductColorParlerSerializer(TranslatableModelSerializer):
 class CartItemSerializer(serializers.ModelSerializer):
     # product = ProductParlerSerializer(read_only=True)
 
-    size = serializers.ChoiceField(
-        write_only=True,
-        choices=(
-            (1, "S"),
-            (2, "M"),
-            (3, "L"),
-            (4, "XL"),
-        ),
-    )
-
     class Meta:
         model = CartItem
         fields = (
@@ -124,13 +114,13 @@ class CartItemSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         product = attrs.get("product")
         quantity = attrs.get("quantity")
-        size = attrs.get("size")
 
-        stock = Stock.objects.filter(product=product, size=size).first()
+        if not product.active:
+            raise serializers.ValidationError({"detail": "This product is unavailable!"})
 
-        if stock is not None and stock.quantity < quantity:
+        if product.quantity < quantity:
             raise serializers.ValidationError(
-                "You can't order more products than we have in stock."
+                {"detail": "You can't order more products than we have in stock."}
             )
 
         return attrs
@@ -141,12 +131,6 @@ class CartItemSerializer(serializers.ModelSerializer):
 
         product = validated_data["product"]
         quantity = validated_data["quantity"]
-
-        stock = Stock.objects.get(product=product, size=size)
-
-        stock.quantity -= quantity
-        stock.save()
-        validated_data.pop("size")
 
         return super().create(validated_data)
 
