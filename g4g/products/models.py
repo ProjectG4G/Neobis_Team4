@@ -40,10 +40,14 @@ class Product(TranslatableModel):
             blank=True,
             verbose_name=_("Описание товара"),
         ),
-        color=models.CharField(
-            max_length=50,
-            verbose_name=_("Расцветки товара"),
-        ),
+    )
+
+    color = models.ForeignKey(
+        to="products.ProductColor",
+        verbose_name=_("Расцветки товара"),
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="productcolor",
     )
 
     price = models.DecimalField(
@@ -80,12 +84,59 @@ class Product(TranslatableModel):
         null=True,
     )
 
+    quantity = models.PositiveIntegerField(
+        verbose_name=_("Количество"),
+        default=1,
+    )
+
+    size = models.SmallIntegerField(
+        verbose_name=_("Размер"),
+        choices=(
+            (0, "NO"),
+            (1, "S"),
+            (2, "M"),
+            (3, "L"),
+            (4, "XL"),
+        ),
+        default=0,
+    )
+
+    updated_at = models.DateTimeField(
+        verbose_name=_("Дата редактирования"),
+        auto_now=True,
+    )
+
+    created_at = models.DateTimeField(
+        verbose_name=_("Дата создания"),
+        auto_now_add=True,
+    )
+
     def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = "Продукт"
         verbose_name_plural = "Продукты"
+
+
+class ProductColor(TranslatableModel):
+    objects = TranslatableManager()
+
+    translations = TranslatedFields(
+        name=models.CharField(
+            verbose_name=_("Расцветки товара"),
+            max_length=255,
+            blank=True,
+            unique=True,
+        ),
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
 
 
 class ProductImage(models.Model):
@@ -96,45 +147,6 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return self.product.name
-
-
-class Stock(models.Model):
-    objects = models.Manager()
-    size = models.SmallIntegerField(
-        verbose_name=_("Размер"),
-        choices=(
-            (1, "S"),
-            (2, "M"),
-            (3, "L"),
-            (4, "XL"),
-        ),
-    )
-    quantity = models.PositiveIntegerField(
-        verbose_name=_("Количество"),
-        default=1,
-    )
-    last_updated = models.DateTimeField(
-        verbose_name=_("Последнее обновление"),
-        auto_now=True,
-    )
-    updated_at = models.DateTimeField(
-        verbose_name=_("Дата нового поступления"),
-        null=True,
-    )
-    product = models.ForeignKey(
-        "products.Product",
-        on_delete=models.PROTECT,
-        verbose_name=_("Продукт"),
-        related_name="stocks",
-    )
-
-    def __str__(self):
-        return f"{self.product} [{self.get_size_display()}]"
-
-    class Meta:
-        verbose_name = "Склад"
-        verbose_name_plural = "Склад"
-        ordering = ("product", "last_updated")
 
 
 class Cart(models.Model):
@@ -148,13 +160,14 @@ class Cart(models.Model):
         verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
-    total_price = models.FloatField(blank=True, null=True)
+    total_price = models.FloatField(blank=True, null=True, default=0)
 
     def __str__(self):
         return f"Cart {self.pk} "
 
     def add_price(self, price):
         self.total_price += price
+        self.save()
 
     class Meta:
         verbose_name = "Корзина"
@@ -175,7 +188,11 @@ class Order(models.Model):
         auto_now_add=True,
         verbose_name=_("Дата заказа"),
     )
-    total_price = models.FloatField(blank=True, null=True, default=0)
+    total_price = models.FloatField(
+        blank=True,
+        null=True,
+        default=0,
+    )
 
     STATUS_CHOICES = (
         ("P", "Pending"),
@@ -196,6 +213,7 @@ class Order(models.Model):
 
     def add_price(self, price):
         self.total_price += price
+        self.save()
 
     class Meta:
         verbose_name = "Заказ"
@@ -210,11 +228,13 @@ class CartItem(models.Model):
         verbose_name=_("Корзина"),
         on_delete=models.CASCADE,
         null=True,
+        related_name="items",
     )
     order = models.ForeignKey(
         "products.Order",
         verbose_name=_("Заказ"),
         on_delete=models.CASCADE,
+        related_name="items",
         blank=True,
         null=True,
     )
@@ -244,11 +264,23 @@ class CartItem(models.Model):
         return round(price * quantity)
 
     def save(self, *args, **kwargs):
+        quantity = self.quantity
+        if self.pk:  # check if the instance already exists in the database
+            old_instance = CartItem.objects.get(pk=self.pk)
+            if self.quantity != old_instance.quantity:
+                quantity -= old_instance.quantity
+
         total_price = self.get_total_price(
             self.product.price, self.quantity, self.product.discount
         )
-        self.cart.add_price(total_price)
 
+        self.product.quantity -= quantity
+        self.product.save()
+
+        if self.cart is not None:
+            self.cart.add_price(total_price)
+        if self.order is not None:
+            self.order.add_price(total_price)
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
