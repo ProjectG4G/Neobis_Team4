@@ -40,10 +40,6 @@ class ProductCategoryParlerViewSet(viewsets.ModelViewSet):
     serializer_class = ProductCategoryParlerSerializer
 
 
-class StockViewSet(viewsets.ModelViewSet):
-    queryset = Stock.objects.all()
-    serializer_class = StockSerializer
-
 class ProductColorParlerViewSet(viewsets.ModelViewSet):
     queryset = ProductColor.objects.all()
     serializer_class = ProductCategoryParlerSerializer
