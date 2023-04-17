@@ -42,7 +42,7 @@ class ProductCategoryParlerViewSet(viewsets.ModelViewSet):
 
 class ProductColorParlerViewSet(viewsets.ModelViewSet):
     queryset = ProductColor.objects.all()
-    serializer_class = ProductCategoryParlerSerializer
+    serializer_class = ProductColorParlerSerializer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
