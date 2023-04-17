@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     ProductParlerViewSet,
     ProductCategoryParlerViewSet,
-    StockViewSet,
+    ProductColorParlerViewSet,
     OrderViewSet,
     CartViewSet,
     CartItemViewSet,
@@ -17,7 +17,7 @@ router.register(
     r"product-categories", ProductCategoryParlerViewSet, basename="productcategory"
 )
 router.register(r"product-images", ProductImageViewSet, basename="productimage")
-router.register(r"stocks", StockViewSet, basename="stock")
+router.register(r"product-colors", ProductColorParlerViewSet, basename="productcolor")
 router.register(r"orders", OrderViewSet, basename="order")
 router.register(r"carts", CartViewSet, basename="cart")
 router.register(r"cart-items", CartItemViewSet, basename="cartitem")
