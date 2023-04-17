@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import (
     Product,
     ProductCategory,
-    Stock,
+    ProductColor,
     Order,
     Cart,
     CartItem,
@@ -79,23 +79,19 @@ class SizeSerializer(serializers.ModelSerializer):
     size_name = serializers.CharField(source="get_size_display")
 
     class Meta:
-        model = Stock
+        model = Product
         fields = ["size", "size_name"]
 
 
-class StockSerializer(serializers.ModelSerializer):
-    # product = ProductParlerSerializer(read_only=True)
+class ProductColorParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=ProductCategory)
 
     class Meta:
-        model = Stock
+        model = ProductColor
         fields = (
             "id",
             "url",
-            "size",
-            "quantity",
-            "last_updated",
-            "updated_at",
-            "product",
+            "translations",
         )
 
 
@@ -121,7 +117,6 @@ class CartItemSerializer(serializers.ModelSerializer):
             "order",
             "product",
             "quantity",
-            "size",
         )
 
         read_only_fields = ("cart",)
@@ -145,7 +140,6 @@ class CartItemSerializer(serializers.ModelSerializer):
         validated_data["cart"] = Cart.objects.get(user=user)
 
         product = validated_data["product"]
-        size = validated_data["size"]
         quantity = validated_data["quantity"]
 
         stock = Stock.objects.get(product=product, size=size)
@@ -173,6 +167,8 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
         fields = (
@@ -182,6 +178,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "order_datetime",
             "status",
             "total_price",
+            "items",
         )
         read_only_fields = (
             "user",
@@ -194,7 +191,7 @@ class OrderSerializer(serializers.ModelSerializer):
         validated_data["user"] = user
 
         cart = Cart.objects.get(user=user)
-
+        # validated_data["total_price"] = int(cart.total_price)
         items = CartItem.objects.filter(cart=cart)
 
         order = Order.objects.create(**validated_data)
@@ -203,7 +200,6 @@ class OrderSerializer(serializers.ModelSerializer):
             item.order = order
             item.cart = None
             item.save()
-
         cart.total_price = 0
         cart.save()
 
