@@ -55,6 +55,7 @@ class Product(TranslatableModel):
         decimal_places=2,
         max_digits=12,
     )
+
     created_at = models.DateTimeField(
         verbose_name=_("Дата создания"),
         auto_now_add=True,
@@ -64,10 +65,12 @@ class Product(TranslatableModel):
         verbose_name=_("Дата изменения"),
         auto_now=True,
     )
+
     active = models.BooleanField(
         verbose_name=_("Данный товар активен"),
         default=True,
     )
+
     discount = models.DecimalField(
         verbose_name=_("Скидка"),
         max_digits=5,
@@ -76,6 +79,7 @@ class Product(TranslatableModel):
         null=True,
         blank=True,
     )
+
     category = models.ForeignKey(
         ProductCategory,
         related_name="product",
@@ -271,7 +275,7 @@ class CartItem(models.Model):
                 quantity -= old_instance.quantity
 
         total_price = self.get_total_price(
-            self.product.price, self.quantity, self.product.discount
+            self.product.price, quantity, self.product.discount
         )
 
         self.product.quantity -= quantity
