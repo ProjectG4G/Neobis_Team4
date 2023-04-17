@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "parler",
     # local app
     "users",
+    "products",
     "geoapi",
     "mentorship",
     "trainings",

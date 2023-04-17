@@ -140,7 +140,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "is_mentor",
         )
 
-        read_only_fields = ("is_verified",)
+        # read_only_fields = ("is_verified",)
 
     def validate(self, attrs):
         user = self.context["request"].user
