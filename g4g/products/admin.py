@@ -6,7 +6,7 @@ from parler.admin import TranslatableAdmin
 from .models import (
     Product,
     ProductCategory,
-    Stock,
+    ProductColor,
     Order,
     Cart,
     CartItem,
@@ -110,7 +110,7 @@ class CartAdmin(admin.ModelAdmin):
 
 admin.site.register(Product, TranslatableAdmin)
 admin.site.register(ProductCategory, TranslatableAdmin)
-admin.site.register(Stock)
+admin.site.register(ProductColor, TranslatableAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(Cart, CartAdmin)
 admin.site.register(CartItem, CartItemAdmin)
