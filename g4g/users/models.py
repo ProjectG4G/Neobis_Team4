@@ -4,11 +4,13 @@ from django.utils.translation import gettext_lazy as _
 
 from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.conf import settings
 
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from decouple import config
+from geoapi.models import Region, District, Village
 
 
 @receiver(reset_password_token_created)

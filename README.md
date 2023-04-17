@@ -28,9 +28,9 @@ python manage.py runserver
 ## Built With:
 
 * [ Python ] - is an interpreted high-level general-purpose programming language.
-* [ Postamn ] - is an application used for API testing.
+* [ Postman ] - is an application used for API testing.
 * [ Django ] - is a high-level Python web framework that encourages rapid development and clean, pragmatic design.
-* [ DjangRestFrameWork ] - Django REST framework is a powerful and flexible toolkit for building Web APIs.
+* [ DjangoRestFrameWork ] - Django REST framework is a powerful and flexible toolkit for building Web APIs.
 * [ PostgresSQL ] - PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
 * [ Cloudinary ] - MEDIA EXPERIENCE CLOUD The Most Powerful Image and Video APIs
 * [ Google Cloud Deploy ] -  Google Cloud Deploy provides easy one-step promotion and rollback of releases via the web console, CLI, or API. Built-in metrics enable insight into deployment frequency and success.
