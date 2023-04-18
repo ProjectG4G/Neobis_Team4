@@ -139,8 +139,8 @@ class ProductColor(TranslatableModel):
         return self.name
 
     class Meta:
-        verbose_name = "Категория"
-        verbose_name_plural = "Категории"
+        verbose_name = "Расцветки товара"
+        verbose_name_plural = "Расцветки товара"
 
 
 class ProductImage(models.Model):
@@ -264,6 +264,9 @@ class CartItem(models.Model):
 
     @staticmethod
     def get_total_price(price, quantity, discount):
+        if discount is None:
+            discount = 0
+        price = float(price)
         price = price - price * (discount / 100)
         return round(price * quantity)
 
