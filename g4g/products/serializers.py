@@ -116,11 +116,9 @@ class CartItemSerializer(serializers.ModelSerializer):
         quantity = attrs.get("quantity")
 
         if not product.active:
-            raise serializers.ValidationError(
-                {"detail": "This product is unavailable!"}
-            )
+            raise serializers.ValidationError({"detail": "This product is unavailable!"})
 
-        if self.intance:
+        if self.instance:
             product.quantity += self.instance.quantity
             product.save()
             self.instance.quantity = 0
