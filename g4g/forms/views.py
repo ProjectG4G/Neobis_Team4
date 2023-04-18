@@ -3,7 +3,14 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+
 from drf_spectacular.utils import extend_schema
+
+from drf_excel.mixins import XLSXFileMixin
+from drf_excel.renderers import XLSXRenderer
+
+from datetime import datetime
 
 from .models import (
     Form,
@@ -21,6 +28,7 @@ from .serializers import (
     QuestionSerializer,
     ApplicationSerializer,
     ApplicationCreateSerializer,
+    ApplicationExcelSerializer,
     ResponseSerializer,
     EventImageSerializer,
     ChoiceSerializer,
@@ -87,3 +95,19 @@ class ResponseViewSet(viewsets.ModelViewSet):
     queryset = Response.objects.all()
     serializer_class = ResponseSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+@extend_schema(tags=["Applications Excel"])
+class ApplicationExcelViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Application.objects.all()
+
+    serializer_class = ApplicationExcelSerializer
+
+    renderer_classes = (
+        BrowsableAPIRenderer,
+        JSONRenderer,
+        XLSXRenderer,
+    )
+
+    def get_filename(self, request=None, *args, **kwargs):
+        return f"Mentorship Applications {datetime.now()}.xlsx"
