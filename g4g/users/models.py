@@ -12,9 +12,13 @@ from django_rest_passwordreset.signals import reset_password_token_created
 
 from geoapi.models import Region, District, Village
 
+from decouple import config
+
 
 @receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
+def password_reset_token_created(
+    sender, instance, reset_password_token, *args, **kwargs
+):
     """
     Handles password reset tokens
     When a token is created, an e-mail needs to be sent to the user
@@ -29,8 +33,9 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
     # send an e-mail to the user
 
     user = reset_password_token.user
-    reset_url = "{}/{}".format(config("RESET_PASSWORD_URL"),
-                               reset_password_token.key),
+    reset_url = (
+        "{}/{}".format(config("RESET_PASSWORD_URL"), reset_password_token.key),
+    )
 
     # render email text
 
@@ -42,7 +47,7 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
         # from:
         settings.EMAIL_HOST,
         # to:
-        [reset_password_token.user.email]
+        [reset_password_token.user.email],
     )
 
     msg.send()
@@ -75,7 +80,7 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(
-            self, phone_number=None, email=None, password=None, **extra_fields
+        self, phone_number=None, email=None, password=None, **extra_fields
     ):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -124,11 +129,19 @@ class User(AbstractUser):
     objects = CustomUserManager()
 
     # add default profile picture
-    profile_picture = models.ImageField(upload_to="profile_picture/", null=True, blank=True)
+    profile_picture = models.ImageField(
+        upload_to="profile_picture/", null=True, blank=True
+    )
 
-    region = models.ForeignKey('geoapi.Region', on_delete=models.SET_NULL, null=True, blank=True)
-    district = models.ForeignKey('geoapi.District', on_delete=models.SET_NULL, null=True, blank=True)
-    village = models.ForeignKey('geoapi.Village', on_delete=models.SET_NULL, null=True, blank=True)
+    region = models.ForeignKey(
+        "geoapi.Region", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    district = models.ForeignKey(
+        "geoapi.District", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    village = models.ForeignKey(
+        "geoapi.Village", on_delete=models.SET_NULL, null=True, blank=True
+    )
 
     is_verified = models.BooleanField(default=False)
     is_mentor = models.BooleanField(default=False, blank=True)
