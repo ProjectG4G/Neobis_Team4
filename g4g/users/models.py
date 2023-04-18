@@ -33,17 +33,14 @@ def password_reset_token_created(
     # send an e-mail to the user
 
     user = reset_password_token.user
-    reset_url = (
-        "{}/{}".format(config("RESET_PASSWORD_URL"), reset_password_token.key),
-    )
+    reset_url = "{}/{}".format(config("RESET_PASSWORD_URL"), reset_password_token.key)
 
     # render email text
-
     msg = EmailMultiAlternatives(
         # title:
         "Password Reset for Girls for Girls",
         # message:
-        f"Hi {user.first_name}!\nReset you password with following link:\n{reset_url}",
+        f"Hi {user.first_name}!\n\nReset you password with following link:\n\n{reset_url}",
         # from:
         settings.EMAIL_HOST,
         # to:
