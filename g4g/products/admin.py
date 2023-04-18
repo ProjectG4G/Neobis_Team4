@@ -55,8 +55,9 @@ class OrderAdmin(admin.ModelAdmin):
     ]
 
     def cart_details(self, obj):
-        if obj.cart:
-            items = obj.cart.cartitem_set.all()
+        cart = getattr(obj, "cart", None)
+        if cart:
+            items = cart.cartitem_set.all()
             return ", ".join([f"{item.product.name} x {item.quantity}" for item in items])
         else:
             return "-"
