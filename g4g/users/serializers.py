@@ -36,7 +36,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             "region",
             "district",
         )
-        extra_kwargs = {"first_name": {"required": True}, "last_name": {"required": True}}
+        extra_kwargs = {
+            "first_name": {"required": True},
+            "last_name": {"required": True},
+        }
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -137,10 +140,14 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "is_active",
             "is_staff",
             "is_verified",
+            "is_superuser",
             "is_mentor",
         )
 
-        # read_only_fields = ("is_verified",)
+        read_only_fields = (
+            "is_verified",
+            "is_superuser",
+        )
 
     def validate(self, attrs):
         user = self.context["request"].user
