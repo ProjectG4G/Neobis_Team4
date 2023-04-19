@@ -6,6 +6,9 @@ from .models import MentorProfile, Mentee
 
 
 def accept_mentorship(self, application):
+    if application.status == "accepted":
+        return Response({"detail": "Application was already accepted!"})
+
     program = application.form.event
 
     mentee = Mentee.objects.create(
