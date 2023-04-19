@@ -7,6 +7,7 @@ from .models import (
     Product,
     ProductCategory,
     ProductColor,
+    ProductImage,
     Order,
     Cart,
     CartItem,
@@ -110,6 +111,7 @@ class CartAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Product, TranslatableAdmin)
+admin.site.register(ProductImage)
 admin.site.register(ProductCategory, TranslatableAdmin)
 admin.site.register(ProductColor, TranslatableAdmin)
 admin.site.register(Order, OrderAdmin)
