@@ -80,6 +80,20 @@ class FormParlerViewSet(viewsets.ModelViewSet):
     serializer_class = FormParlerSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "translations__title",
+        "translations__description",
+    )
+    filterset_fields = (
+        "event",
+        "active",
+    )
+
 
 @extend_schema(tags=["Form Questions"], description="Questions in Forms")
 class QuestionViewSet(viewsets.ModelViewSet):
