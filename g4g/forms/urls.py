@@ -10,6 +10,7 @@ from .views import (
     ApplicationViewSet,
     ResponseViewSet,
     EventImageViewSet,
+    ApplicationExcelViewSet,
 )
 
 router = SimpleRouter()
@@ -20,5 +21,8 @@ router.register("choices", ChoiceViewSet, basename="choice")
 router.register("applications", ApplicationViewSet, basename="application")
 router.register("responses", ResponseViewSet, basename="response")
 router.register("images", EventImageViewSet, basename="eventimage")
+router.register(
+    "applications-excel", ApplicationExcelViewSet, basename="application-excel"
+)
 
 urlpatterns = router.urls

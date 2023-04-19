@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Applicants",
+            name="Applicant",
             fields=[
                 (
                     "id",

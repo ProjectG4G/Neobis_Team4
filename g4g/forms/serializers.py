@@ -312,3 +312,73 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         response = super().create(validated_data)
 
         return response
+
+
+class ResponseMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Response
+        fields = (
+            "question",
+            "application",
+            "response_text",
+            "response_choices",
+            "response_file",
+        )
+
+
+class ApplicationExcelSerializer(serializers.ModelSerializer):
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    phone_number = serializers.CharField(source="user.phone_number", read_only=True)
+
+    responses = ResponseSerializer(many=True, read_only=True)
+
+    extra_fields = serializers.SerializerMethodField()
+
+    def get_extra_fields(self, obj):
+        extra_fields = {}
+
+        # loop through any additional fields you want to add
+        for field_name in "some":
+            extra_fields[field_name] = obj.user.last_name
+
+        return extra_fields
+
+    class Meta:
+        model = Application
+        fields = (
+            "form",
+            "status",
+            "user",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "responses",
+            "created_at",
+            "updated_at",
+            "extra_fields",
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        responses = representation["responses"]
+
+        representation.pop("responses")
+
+        if responses:
+            for response in responses:
+                question = Question.objects.get(id=response["question"])
+
+                if question.question_type in ["text", "paragraph"]:
+                    representation[f"{question.title}"] = response["response_text"]
+                if question.question_type in ["multiple_choice", "checkbox"]:
+                    representation[f"{question.title}"] = response["response_choices"]
+                if question.question_type == "file":
+                    representation[f"{question.title}"] = response["response_file"]
+
+        print(representation)
+
+        return representation

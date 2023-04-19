@@ -13,7 +13,7 @@ urlpatterns = [
     path("api/news/", include("news.urls")),
     path("api/rest_auth/", include("rest_framework.urls")),
     path("api/mentorship/", include("mentorship.urls")),
-    path("api/", include("trainings.urls")),
+    path("api/training/", include("trainings.urls")),
     path("geoapi/", include("geoapi.urls")),
     path("api/", include("landing_page.urls")),
     path("api/forms/", include("forms.urls")),
