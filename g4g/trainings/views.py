@@ -6,6 +6,8 @@ from rest_framework.decorators import action
 
 from drf_spectacular.utils import extend_schema
 
+from django_filters.rest_framework import DjangoFilterBackend
+
 from forms.models import Event
 from forms.views import (
     ApplicationViewSet,
@@ -18,6 +20,10 @@ from forms.models import Application, Form
 from .utils import accept_training
 
 from .permissions import IsAdminOrReadOnly
+
+from .models import Applicant
+
+from .serializers import TrainingApplicantSerializer
 
 
 @extend_schema(tags=["Trainings"])
@@ -37,3 +43,16 @@ class TrainingApplicationViewSet(ApplicationViewSet):
 @extend_schema(tags=["Training Forms"])
 class TrainingsFormViewSet(FormParlerViewSet):
     queryset = Form.objects.filter(event__type="mentorship")
+
+
+@extend_schema(tags=["Training Accepted Applicant"])
+class TrainingApplicantViewSet(viewsets.ModelViewSet):
+    queryset = Applicant.objects.all()
+    serializer_class = TrainingApplicantSerializer
+
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    filterset_fields = ("training",)
