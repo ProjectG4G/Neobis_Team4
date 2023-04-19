@@ -152,6 +152,10 @@ class ProductImage(models.Model):
     def __str__(self):
         return self.product.name
 
+    class Meta:
+        verbose_name = "Фото товара"
+        verbose_name_plural = "Фото товаров"
+
 
 class Cart(models.Model):
     objects = models.Manager()
