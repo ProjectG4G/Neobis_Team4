@@ -52,7 +52,7 @@ class Form(TranslatableModel):
 
     active = models.BooleanField(default=False)
 
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="form")
 
     def __str__(self):
         return f"{self.title} - {self.event}"
