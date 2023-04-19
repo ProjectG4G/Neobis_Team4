@@ -36,4 +36,4 @@ class TrainingApplicationViewSet(ApplicationViewSet):
 
 @extend_schema(tags=["Training Forms"])
 class TrainingsFormViewSet(FormParlerViewSet):
-    queryset = Form.objects.filter(event__type="mentorship")
+    queryset = Form.objects.filter(event__type="training")
