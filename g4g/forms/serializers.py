@@ -16,60 +16,6 @@ from .models import (
 from .utils import upload_images
 
 
-class EventImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventImage
-        fields = (
-            "id",
-            "url",
-            "event",
-            "image",
-        )
-
-
-class EventParlerSerializer(TranslatableModelSerializer):
-    translations = TranslatedFieldsField(shared_model=Event, required=False)
-
-    images = EventImageSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(),
-        allow_empty=True,
-        required=False,
-        write_only=True,
-    )
-
-    class Meta:
-        model = Event
-        fields = (
-            "id",
-            "url",
-            "type",
-            "translations",
-            "images",
-            "uploaded_images",
-            "created_at",
-            "updated_at",
-        )
-
-    def create(self, validated_data):
-        uploaded_images = validated_data.pop("uploaded_images", [])
-
-        event = Event.objects.create(**validated_data)
-
-        event.save()
-
-        upload_images(images=uploaded_images, event=event)
-
-        return event
-
-    def update(self, instance, validated_data):
-        uploaded_images = validated_data.pop("uploaded_image", [])
-
-        upload_images(images=uploaded_images, event=instance)
-
-        return super().update(instance, validated_data)
-
-
 class QuestionChoiceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
 
@@ -159,6 +105,63 @@ class FormParlerSerializer(TranslatableModelSerializer):
             "active",
             "questions",
         )
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventImage
+        fields = (
+            "id",
+            "url",
+            "event",
+            "image",
+        )
+
+
+class EventParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Event, required=False)
+
+    images = EventImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(),
+        allow_empty=True,
+        required=False,
+        write_only=True,
+    )
+
+    form = FormParlerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Event
+        fields = (
+            "id",
+            "url",
+            "type",
+            "translations",
+            "images",
+            "uploaded_images",
+            "created_at",
+            "updated_at",
+            "form",
+        )
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
+        event = Event.objects.create(**validated_data)
+
+        event.save()
+
+        upload_images(images=uploaded_images, event=event)
+
+        return event
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_image", [])
+
+        upload_images(images=uploaded_images, event=instance)
+
+        return super().update(instance, validated_data)
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
