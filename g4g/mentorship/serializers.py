@@ -7,6 +7,9 @@ from .models import (
 
 
 class MenteeSerializer(serializers.ModelSerializer):
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+
     class Meta:
         model = Mentee
         fields = (
@@ -14,6 +17,8 @@ class MenteeSerializer(serializers.ModelSerializer):
             "url",
             "program",
             "user",
+            "last_name",
+            "first_name",
         )
 
 
