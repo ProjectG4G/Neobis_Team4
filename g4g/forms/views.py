@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
@@ -9,6 +9,8 @@ from drf_spectacular.utils import extend_schema
 
 from drf_excel.mixins import XLSXFileMixin
 from drf_excel.renderers import XLSXRenderer
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from datetime import datetime
 
@@ -45,6 +47,21 @@ class EventParlerViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventParlerSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "type",
+        "translations__title",
+        "translations__description",
+    )
+    filterset_fields = (
+        "type",
+        "translations__title",
+    )
 
 
 @extend_schema(
