@@ -7,9 +7,9 @@ from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema
 
-from forms.models import Event, Application
+from forms.models import Event, Application, Form
 from forms.serializers import EventParlerSerializer, ApplicationSerializer
-from forms.views import ApplicationViewSet
+from forms.views import ApplicationViewSet, FormParlerViewSet
 
 from .serializers import (
     MentorProfileSerializer,
@@ -53,8 +53,11 @@ class MentorProfileViewSet(viewsets.ModelViewSet):
 class MentorshipApplicationsViewSet(ApplicationViewSet):
     queryset = Application.objects.filter(form__event__type="mentorship")
 
-    permission_classes = [IsAdminOrReadOnly]
-
     @action(methods=["put"], detail=True)
     def accept(self, request, pk=None):
         return accept_mentorship(self, self.get_object())
+
+
+@extend_schema(tags=["Mentorship Forms"])
+class MentorshipFormViewSet(FormParlerViewSet):
+    queryset = Form.objects.filter(event__type="mentorship")
