@@ -22,6 +22,8 @@ class Event(TranslatableModel):
         max_length=255,
     )
 
+    event_date = models.DateTimeField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
