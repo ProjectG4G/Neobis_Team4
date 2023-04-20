@@ -140,6 +140,7 @@ class EventParlerSerializer(TranslatableModelSerializer):
             "translations",
             "images",
             "uploaded_images",
+            "event_date",
             "created_at",
             "updated_at",
             "form",
