@@ -215,6 +215,11 @@ class Order(models.Model):
         default="P",
         verbose_name=_("Статус"),
     )
+    address = models.CharField(
+        max_length=255,
+        verbose_name=_("Адрес"),
+        default="",
+    )
 
     def __str__(self):
         return f"{self.user} ({self.get_status_display()})"
