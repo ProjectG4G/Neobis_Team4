@@ -17,8 +17,10 @@ router = SimpleRouter()
 router.register("mentors", MentorProfileViewSet, basename="mentorprofile")
 router.register("mentees", MenteeViewSet, basename="mentee")
 router.register("programs", MentorshipViewSet, basename="programs")
-router.register("applications", MentorshipApplicationsViewSet, basename="application")
-router.register("forms", MentorshipFormViewSet, basename="form")
+router.register(
+    "applications", MentorshipApplicationsViewSet, basename="mentorship-application"
+)
+router.register("forms", MentorshipFormViewSet, basename="mentorship-form")
 
 
 urlpatterns = [

@@ -11,9 +11,11 @@ from .views import (
 
 router = SimpleRouter()
 router.register("trainings", TrainingViewSet, basename="training")
-router.register("applications", TrainingApplicationViewSet, basename="application")
+router.register(
+    "applications", TrainingApplicationViewSet, basename="training-application"
+)
 router.register("applicants", TrainingApplicantViewSet, basename="applicant")
-router.register("forms", TrainingsFormViewSet, basename="form")
+router.register("forms", TrainingsFormViewSet, basename="training-form")
 
 urlpatterns = [
     path("", include(router.urls)),
