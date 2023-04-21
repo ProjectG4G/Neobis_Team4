@@ -1,10 +1,20 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters, generics
+
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from .permissions import (
+    IsOwnerOrReadOnly,
+    IsOwner,
+    IsSupplierOrReadOnly,
+)
+
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+
 from drf_spectacular.utils import extend_schema
-from .permissions import IsOwnerOrReadOnly, IsOwner, IsSupplierOrReadOnly
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import (
     ProductCategory,
@@ -43,6 +53,23 @@ class ProductParlerViewSet(viewsets.ModelViewSet):
     serializer_class = ProductParlerSerializer
     permission_classes = [IsSupplierOrReadOnly]
 
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "translations__name",
+        "translations__description",
+    )
+
+    filterset_fields = (
+        "size",
+        "color",
+        "category",
+        "active",
+    )
+
 
 @extend_schema(tags=["Product Category"])
 class ProductCategoryParlerViewSet(viewsets.ModelViewSet):
@@ -63,6 +90,22 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "translations__name",
+        "translations__description",
+    )
+
+    filterset_fields = (
+        "user",
+        "order_datetime",
+        "status",
+    )
 
 
 @extend_schema(tags=["Carts"])
@@ -95,3 +138,19 @@ class ProductFeedbackViewSet(viewsets.ModelViewSet):
     queryset = ProductFeedback.objects.all()
     serializer_class = ProductFeedbackSerializer
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+
+@extend_schema(tags=["Users Cart"])
+class UserCartRetrieveView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CartSerializer
+
+    def get_object(self):
+        user = self.request.user
+        cart = Cart.objects.get(user=user)
+        return cart
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

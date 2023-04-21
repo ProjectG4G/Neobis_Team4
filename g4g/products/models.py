@@ -146,7 +146,9 @@ class ProductColor(TranslatableModel):
 class ProductImage(models.Model):
     objects = models.Manager()
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="images"
+    )
     image = models.ImageField(upload_to="images/product/")
 
     def __str__(self):
@@ -214,6 +216,11 @@ class Order(models.Model):
         choices=STATUS_CHOICES,
         default="P",
         verbose_name=_("Статус"),
+    )
+    address = models.CharField(
+        max_length=255,
+        verbose_name=_("Адрес"),
+        default="",
     )
 
     def __str__(self):
