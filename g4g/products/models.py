@@ -34,45 +34,37 @@ class Product(TranslatableModel):
     translations = TranslatedFields(
         name=models.CharField(
             max_length=255,
-            verbose_name=_("Имя товара"),
         ),
         description=models.TextField(
             blank=True,
-            verbose_name=_("Описание товара"),
         ),
     )
 
     color = models.ForeignKey(
         to="products.ProductColor",
-        verbose_name=_("Расцветки товара"),
         on_delete=models.CASCADE,
         null=True,
         related_name="productcolor",
     )
 
     price = models.DecimalField(
-        verbose_name=_("Цена товара"),
         decimal_places=2,
         max_digits=12,
     )
 
     created_at = models.DateTimeField(
-        verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
 
     updated_at = models.DateTimeField(
-        verbose_name=_("Дата изменения"),
         auto_now=True,
     )
 
     active = models.BooleanField(
-        verbose_name=_("Данный товар активен"),
         default=True,
     )
 
     discount = models.DecimalField(
-        verbose_name=_("Скидка"),
         max_digits=5,
         decimal_places=2,
         default=0,
@@ -82,19 +74,16 @@ class Product(TranslatableModel):
 
     category = models.ForeignKey(
         ProductCategory,
-        related_name="product",
-        verbose_name=_("Категория"),
+        related_name="category",
         on_delete=models.CASCADE,
         null=True,
     )
 
     quantity = models.PositiveIntegerField(
-        verbose_name=_("Количество"),
         default=1,
     )
 
     size = models.SmallIntegerField(
-        verbose_name=_("Размер"),
         choices=(
             (0, "NO"),
             (1, "S"),
@@ -106,21 +95,15 @@ class Product(TranslatableModel):
     )
 
     updated_at = models.DateTimeField(
-        verbose_name=_("Дата редактирования"),
         auto_now=True,
     )
 
     created_at = models.DateTimeField(
-        verbose_name=_("Дата создания"),
         auto_now_add=True,
     )
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = "Продукт"
-        verbose_name_plural = "Продукты"
 
 
 class ProductColor(TranslatableModel):
