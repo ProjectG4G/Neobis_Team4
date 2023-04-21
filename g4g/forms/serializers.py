@@ -260,8 +260,6 @@ class ApplicationSerializer(serializers.ModelSerializer):
     email = serializers.CharField(source="user.email", read_only=True)
     phone_number = serializers.CharField(source="user.phone_number", read_only=True)
     region = serializers.CharField(source="user.region", read_only=True)
-    district = serializers.CharField(source="user.district", read_only=True)
-    village = serializers.CharField(source="user.village", read_only=True)
 
     responses = ResponseSerializer(many=True, read_only=True)
 
@@ -278,25 +276,9 @@ class ApplicationSerializer(serializers.ModelSerializer):
             "email",
             "phone_number",
             "region",
-            "district",
-            "village",
             "responses",
             "created_at",
             "updated_at",
-        )
-
-
-class ApplicationCreateSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField(allow_blank=True, required=False)
-
-    class Meta:
-        model = Application
-        fields = (
-            "id",
-            "url",
-            "form",
-            "phone_number",
-            "user",
         )
 
         read_only_fields = ("user",)
@@ -308,10 +290,6 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
 
         validated_data["user"] = user
         validated_data["status"] = "filling"
-        phone_number = validated_data.pop("phone_number", None)
-        if user.phone_number is None:
-            user.phone_number = phone_number
-            user.save()
 
         response = super().create(validated_data)
 
