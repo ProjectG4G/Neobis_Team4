@@ -1,4 +1,5 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, response
+from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
@@ -29,7 +30,6 @@ from .serializers import (
     FormParlerSerializer,
     QuestionSerializer,
     ApplicationSerializer,
-    ApplicationCreateSerializer,
     ApplicationExcelSerializer,
     ResponseSerializer,
     EventImageSerializer,
@@ -112,13 +112,36 @@ class ChoiceViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["Applications"], description="Application from users")
 class ApplicationViewSet(viewsets.ModelViewSet):
     queryset = Application.objects.all()
+    serializer_class = ApplicationSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_serializer_class(self):
-        if self.action in ["retrieve", "list"]:
-            return ApplicationSerializer
-        else:
-            return ApplicationCreateSerializer
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    filterset_fields = (
+        "form",
+        "form__event",
+        "status",
+    )
+
+    @action(methods=["put"], detail=True)
+    def submit(self, request, pk=None):
+        application = self.get_object()
+
+        if application.status == "submitted":
+            return Response({"detail": "Application was already submitted!"})
+
+        if application.status == "declined":
+            return Response({"detail": "Application was declined!"})
+
+        application.status = "submitted"
+        application.save()
+
+        serializer = ApplicationSerializer(application)
+
+        return response.Response(serializer.data())
 
 
 @extend_schema(tags=["Applications Responses"])
