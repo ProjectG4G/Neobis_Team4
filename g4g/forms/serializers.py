@@ -16,60 +16,6 @@ from .models import (
 from .utils import upload_images
 
 
-class EventImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventImage
-        fields = (
-            "id",
-            "url",
-            "event",
-            "image",
-        )
-
-
-class EventParlerSerializer(TranslatableModelSerializer):
-    translations = TranslatedFieldsField(shared_model=Event, required=False)
-
-    images = EventImageSerializer(many=True, read_only=True)
-    uploaded_images = serializers.ListField(
-        child=serializers.ImageField(),
-        allow_empty=True,
-        required=False,
-        write_only=True,
-    )
-
-    class Meta:
-        model = Event
-        fields = (
-            "id",
-            "url",
-            "type",
-            "translations",
-            "images",
-            "uploaded_images",
-            "created_at",
-            "updated_at",
-        )
-
-    def create(self, validated_data):
-        uploaded_images = validated_data.pop("uploaded_images", [])
-
-        event = Event.objects.create(**validated_data)
-
-        event.save()
-
-        upload_images(images=uploaded_images, event=event)
-
-        return event
-
-    def update(self, instance, validated_data):
-        uploaded_images = validated_data.pop("uploaded_image", [])
-
-        upload_images(images=uploaded_images, event=instance)
-
-        return super().update(instance, validated_data)
-
-
 class QuestionChoiceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
 
@@ -159,6 +105,64 @@ class FormParlerSerializer(TranslatableModelSerializer):
             "active",
             "questions",
         )
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventImage
+        fields = (
+            "id",
+            "url",
+            "event",
+            "image",
+        )
+
+
+class EventParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=Event, required=False)
+
+    images = EventImageSerializer(many=True, read_only=True)
+    uploaded_images = serializers.ListField(
+        child=serializers.ImageField(),
+        allow_empty=True,
+        required=False,
+        write_only=True,
+    )
+
+    form = FormParlerSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Event
+        fields = (
+            "id",
+            "url",
+            "type",
+            "translations",
+            "images",
+            "uploaded_images",
+            "event_date",
+            "created_at",
+            "updated_at",
+            "form",
+        )
+
+    def create(self, validated_data):
+        uploaded_images = validated_data.pop("uploaded_images", [])
+
+        event = Event.objects.create(**validated_data)
+
+        event.save()
+
+        upload_images(images=uploaded_images, event=event)
+
+        return event
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop("uploaded_image", [])
+
+        upload_images(images=uploaded_images, event=instance)
+
+        return super().update(instance, validated_data)
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -312,3 +316,73 @@ class ApplicationCreateSerializer(serializers.ModelSerializer):
         response = super().create(validated_data)
 
         return response
+
+
+class ResponseMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Response
+        fields = (
+            "question",
+            "application",
+            "response_text",
+            "response_choices",
+            "response_file",
+        )
+
+
+class ApplicationExcelSerializer(serializers.ModelSerializer):
+    last_name = serializers.CharField(source="user.last_name", read_only=True)
+    first_name = serializers.CharField(source="user.first_name", read_only=True)
+    email = serializers.CharField(source="user.email", read_only=True)
+    phone_number = serializers.CharField(source="user.phone_number", read_only=True)
+
+    responses = ResponseSerializer(many=True, read_only=True)
+
+    extra_fields = serializers.SerializerMethodField()
+
+    def get_extra_fields(self, obj):
+        extra_fields = {}
+
+        # loop through any additional fields you want to add
+        for field_name in "some":
+            extra_fields[field_name] = obj.user.last_name
+
+        return extra_fields
+
+    class Meta:
+        model = Application
+        fields = (
+            "form",
+            "status",
+            "user",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "responses",
+            "created_at",
+            "updated_at",
+            "extra_fields",
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        responses = representation["responses"]
+
+        representation.pop("responses")
+
+        if responses:
+            for response in responses:
+                question = Question.objects.get(id=response["question"])
+
+                if question.question_type in ["text", "paragraph"]:
+                    representation[f"{question.title}"] = response["response_text"]
+                if question.question_type in ["multiple_choice", "checkbox"]:
+                    representation[f"{question.title}"] = response["response_choices"]
+                if question.question_type == "file":
+                    representation[f"{question.title}"] = response["response_file"]
+
+        print(representation)
+
+        return representation

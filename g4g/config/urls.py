@@ -9,15 +9,16 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/auth/", include("users.urls")),
-    path("api/news/", include("news.urls")),
     path("api/rest_auth/", include("rest_framework.urls")),
-    path("api/mentorship/", include("mentorship.urls")),
-    path("api/", include("trainings.urls")),
     path("geoapi/", include("geoapi.urls")),
-    path("api/", include("landing_page.urls")),
+    path("api/auth/", include("users.urls")),
     path("api/forms/", include("forms.urls")),
+    path("api/mentorship/", include("mentorship.urls")),
+    path("api/training/", include("trainings.urls")),
+    path("api/shop/", include("products.urls")),
+    path("api/news/", include("news.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/", include("landing_page.urls")),
     # Optional UI:
     path(
         "api/swagger/",
@@ -25,5 +26,4 @@ urlpatterns = [
         name="swagger-ui",
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
-    path("shop/", include("products.urls")),
 ]

@@ -1,16 +1,15 @@
-from django.db.models import Count
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema
 
-from forms.models import Event, Application
+from forms.models import Event, Application, Form
 from forms.serializers import EventParlerSerializer, ApplicationSerializer
-from forms.views import ApplicationViewSet
+from forms.views import ApplicationViewSet, FormParlerViewSet
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .serializers import (
     MentorProfileSerializer,
@@ -23,6 +22,7 @@ from .models import (
 )
 
 from .permissions import IsAdminOrReadOnly
+from .utils import accept_mentorship
 
 
 @extend_schema(tags=["Mentorship Programs"])
@@ -40,6 +40,13 @@ class MenteeViewSet(viewsets.ModelViewSet):
 
     permission_classes = (IsAdminOrReadOnly,)
 
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    filterset_fields = ("program",)
+
 
 @extend_schema(tags=["Mentor Profiles"])
 class MentorProfileViewSet(viewsets.ModelViewSet):
@@ -53,36 +60,11 @@ class MentorProfileViewSet(viewsets.ModelViewSet):
 class MentorshipApplicationsViewSet(ApplicationViewSet):
     queryset = Application.objects.filter(form__event__type="mentorship")
 
-    permission_classes = [IsAdminOrReadOnly]
-
     @action(methods=["put"], detail=True)
     def accept(self, request, pk=None):
-        application = self.get_object()
+        return accept_mentorship(self, self.get_object())
 
-        program = application.form.event
 
-        mentee = Mentee.objects.create(
-            program=application.form.event, user=application.user
-        )
-
-        mentor = (
-            MentorProfile.objects.annotate(num_mentees=Count("mentees"))
-            .filter(programs=program)
-            .order_by("num_mentees")
-        )[0]
-
-        mentor.mentees.add(mentee)
-
-        mentor.save()
-
-        application.status = "accepted"
-
-        application.save()
-
-        return Response(
-            {
-                "detail": "Application accepted, Mentor {} was assigned to mentee {}!".format(
-                    mentor, mentee
-                )
-            }
-        )
+@extend_schema(tags=["Mentorship Forms"])
+class MentorshipFormViewSet(FormParlerViewSet):
+    queryset = Form.objects.filter(event__type="mentorship")

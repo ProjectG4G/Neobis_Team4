@@ -9,6 +9,7 @@ from .views import (
     MentorshipViewSet,
     MenteeViewSet,
     MentorshipApplicationsViewSet,
+    MentorshipFormViewSet,
 )
 
 router = SimpleRouter()
@@ -16,9 +17,8 @@ router = SimpleRouter()
 router.register("mentors", MentorProfileViewSet, basename="mentorprofile")
 router.register("mentees", MenteeViewSet, basename="mentee")
 router.register("programs", MentorshipViewSet, basename="programs")
-router.register(
-    "applications", MentorshipApplicationsViewSet, basename="mentorshipapplication"
-)
+router.register("applications", MentorshipApplicationsViewSet, basename="application")
+router.register("forms", MentorshipFormViewSet, basename="form")
 
 
 urlpatterns = [

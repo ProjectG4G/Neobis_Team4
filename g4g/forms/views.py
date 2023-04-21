@@ -1,9 +1,18 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+
 from drf_spectacular.utils import extend_schema
+
+from drf_excel.mixins import XLSXFileMixin
+from drf_excel.renderers import XLSXRenderer
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from datetime import datetime
 
 from .models import (
     Form,
@@ -21,6 +30,7 @@ from .serializers import (
     QuestionSerializer,
     ApplicationSerializer,
     ApplicationCreateSerializer,
+    ApplicationExcelSerializer,
     ResponseSerializer,
     EventImageSerializer,
     ChoiceSerializer,
@@ -38,6 +48,21 @@ class EventParlerViewSet(viewsets.ModelViewSet):
     serializer_class = EventParlerSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "type",
+        "translations__title",
+        "translations__description",
+    )
+    filterset_fields = (
+        "type",
+        "translations__title",
+    )
+
 
 @extend_schema(
     tags=["Event Images"],
@@ -54,6 +79,20 @@ class FormParlerViewSet(viewsets.ModelViewSet):
     queryset = Form.objects.all()
     serializer_class = FormParlerSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+    filter_backends = (
+        DjangoFilterBackend,
+        filters.SearchFilter,
+    )
+
+    search_fields = (
+        "translations__title",
+        "translations__description",
+    )
+    filterset_fields = (
+        "event",
+        "active",
+    )
 
 
 @extend_schema(tags=["Form Questions"], description="Questions in Forms")
@@ -87,3 +126,19 @@ class ResponseViewSet(viewsets.ModelViewSet):
     queryset = Response.objects.all()
     serializer_class = ResponseSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+@extend_schema(tags=["Applications Excel"])
+class ApplicationExcelViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Application.objects.all()
+
+    serializer_class = ApplicationExcelSerializer
+
+    renderer_classes = (
+        BrowsableAPIRenderer,
+        JSONRenderer,
+        XLSXRenderer,
+    )
+
+    def get_filename(self, request=None, *args, **kwargs):
+        return f"Mentorship Applications {datetime.now()}.xlsx"

@@ -36,12 +36,12 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register_email"),
     path("password_reset/", ResetPasswordView.as_view(), name="password_reset"),
     path(
-        "password_reset/validate_token/",
+        "password_reset/confirm/",
         ResetPasswordConfirmView.as_view(),
         name="password_reset_confirm",
     ),
     path(
-        "password_reset/validate",
+        "password_reset/validate_token/",
         ResetPasswordValidateView.as_view(),
         name="password_reset_validate",
     ),
