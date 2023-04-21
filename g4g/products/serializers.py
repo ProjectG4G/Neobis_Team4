@@ -35,9 +35,20 @@ class ProductCategoryParlerSerializer(TranslatableModelSerializer):
         )
 
 
+class ProductColorParlerSerializer(TranslatableModelSerializer):
+    translations = TranslatedFieldsField(shared_model=ProductColor)
+
+    class Meta:
+        model = ProductColor
+        fields = (
+            "id",
+            "url",
+            "translations",
+        )
+
+
 class ProductParlerSerializer(TranslatableModelSerializer):
     translations = TranslatedFieldsField(shared_model=Product)
-    category = ProductCategoryParlerSerializer(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
 
     uploaded_images = serializers.ListField(
@@ -49,12 +60,24 @@ class ProductParlerSerializer(TranslatableModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
-        extra_fields = (
+        fields = (
+            "id",
             "url",
             "translations",
+            "color",
+            "size",
+            "category",
             "images",
+            "uploaded_images",
+            "price",
+            "quantity",
+            "active",
+            "discount",
+            "created_at",
+            "updated_at",
         )
+
+        write_only_fields = ("category", "color")
 
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
@@ -83,18 +106,6 @@ class SizeSerializer(serializers.ModelSerializer):
         fields = ["size", "size_name"]
 
 
-class ProductColorParlerSerializer(TranslatableModelSerializer):
-    translations = TranslatedFieldsField(shared_model=ProductCategory)
-
-    class Meta:
-        model = ProductColor
-        fields = (
-            "id",
-            "url",
-            "translations",
-        )
-
-
 class CartItemSerializer(serializers.ModelSerializer):
     # product = ProductParlerSerializer(read_only=True)
 
@@ -116,7 +127,9 @@ class CartItemSerializer(serializers.ModelSerializer):
         quantity = attrs.get("quantity")
 
         if not product.active:
-            raise serializers.ValidationError({"detail": "This product is unavailable!"})
+            raise serializers.ValidationError(
+                {"detail": "This product is unavailable!"}
+            )
 
         if self.instance:
             product.quantity += self.instance.quantity
