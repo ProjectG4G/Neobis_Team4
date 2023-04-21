@@ -42,7 +42,7 @@ class EventImage(models.Model):
 
 
 class Form(TranslatableModel):
-    objects = models.Manager()
+    objects = TranslatableManager()
 
     translations = TranslatedFields(
         title=models.TextField(blank=True, default=""),
