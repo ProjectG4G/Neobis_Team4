@@ -169,6 +169,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "status",
             "total_price",
             "items",
+            "address",
         )
         read_only_fields = (
             "user",
