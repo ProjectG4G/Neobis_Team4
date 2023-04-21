@@ -9,6 +9,7 @@ from .views import (
     CartItemViewSet,
     ProductFeedbackViewSet,
     ProductImageViewSet,
+    UserCartRetrieveView,
 )
 
 router = DefaultRouter()
@@ -25,4 +26,5 @@ router.register(r"feedbacks", ProductFeedbackViewSet, basename="productfeedback"
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("user-cart/", UserCartRetrieveView.as_view(), name="users-cart"),
 ]
