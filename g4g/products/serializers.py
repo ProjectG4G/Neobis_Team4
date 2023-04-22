@@ -125,8 +125,6 @@ class CartItemSerializer(serializers.ModelSerializer):
             "order",
         )
 
-        depth = 1
-
     def validate(self, attrs):
         product = attrs.get("product")
         quantity = attrs.get("quantity")
