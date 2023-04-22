@@ -261,7 +261,7 @@ class CartItem(models.Model):
         if discount is None:
             discount = 0
         price = float(price)
-        price = price - price * (discount / 100)
+        price = price - price * (float(discount) / 100)
         return round(price * quantity)
 
     def save(self, *args, **kwargs):
