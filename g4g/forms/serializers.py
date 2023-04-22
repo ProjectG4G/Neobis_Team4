@@ -56,7 +56,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         return question
 
     def update(self, instance, validated_data):
-        choices_data = validated_data.pop("choices")
+        choices_data = validated_data.pop("choices", [])
         choices = instance.choices.all()
         choices = list(choices)
 
