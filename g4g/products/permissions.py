@@ -1,6 +1,8 @@
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
+from .models import CartItem
+
 
 class IsOwnerOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -11,6 +13,9 @@ class IsOwnerOrReadOnly(BasePermission):
 
 class IsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
+        if isinstance(obj, CartItem):
+            return obj.cart.user == request.user
+
         return obj.user == request.user
 
 
