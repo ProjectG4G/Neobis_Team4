@@ -120,7 +120,10 @@ class CartItemSerializer(serializers.ModelSerializer):
             "quantity",
         )
 
-        read_only_fields = ("cart",)
+        read_only_fields = (
+            "cart",
+            "order",
+        )
 
     def validate(self, attrs):
         product = attrs.get("product")
